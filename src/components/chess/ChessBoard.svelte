@@ -11,110 +11,125 @@
     export let store; // instance of writable
     export let debug = false;
     export let size = 800; // in px
-    export let showNotation = false;
-    export let allowResize = true;
+    export let flipped = false;
     export let interactive = true;
+    export let showNotation = false;
     export let showHints = true;
     export let onMoveCallback = (initial, final) => true; // (initial: number, final: number) => bool
 
     // LOCAL MEMBERS
-    let nodeRef; // reference to chessboard itself
+    let boardRef; // reference to chessboard itself
     let boardSize; // bound to clientWidth of board
     let showingHints = false;
     let selectedSquare = null;
+    let highlightedSquare = null;
 
     // COMPUTED MEMBERS
-    // read-only, used only for rendering purposes
-    $: boardState = derived(store, ($state) => constants.MAILBOX64.map((s) => $state[s]));
+    $: mailbox64 = flipped ? [...constants.MAILBOX64].reverse() : constants.MAILBOX64; //conversion from 8x8 coords to 10x12 coords
+    $: boardState = derived(store, ($state) => mailbox64.map((s) => $state[s]));
+
+    // FUNCTIONS
+    function getSquare(s) {
+        return boardRef.querySelectorAll("div[data-square='" + s + "']");
+    }
+
+    function getSquareFromOffsetXY(x, y) {
+        const boardRect = getOffsetRect(boardRef);
+        let rank = ~~((y - boardRect.y) / (boardRect.height / 8));
+        let file = ~~((x - boardRect.x) / (boardRect.width / 8));
+
+        return mailbox64[rank * 8 + file];
+    }
+
+    function showHintsForSquare(square) {}
+
+    function hideHintsForSquare(square) {}
 
     // ==========================
     // HANDLERS
     // ==========================
 
-    function handleMouseDown(e) {
-        const targetRef = e.target; // ref to clicked piece
-        const initialX = e.pageX;
-        const initialY = e.pageY;
+    function onSquareDragStart(e) {
+        if (selectedSquare) return; // selected piece is taking target, target shouldn't run
 
-        const boardBoundingRect = nodeRef.getBoundingClientRect();
-        const targetBoundingRect = targetRef.getBoundingClientRect();
+        const targetRef = e.target; // piece
+        const targetRect = getOffsetRect(targetRef);
+        const boardRect = getOffsetRect(boardRef);
+        const offsetSquareX = targetRect.width / 2;
+        const offsetSquareY = targetRect.height / 2;
 
-        const offsetX = targetBoundingRect.width / 2;
-        const offsetY = targetBoundingRect.height / 2;
+        selectedSquare = getSquareFromOffsetXY(e.pageX, e.pageY);
 
-        const initialR = ~~((initialY - boardBoundingRect.top) / targetBoundingRect.height);
-        const initialF = ~~((initialX - boardBoundingRect.left) / targetBoundingRect.width);
-        selectedSquare = constants.MAILBOX64[initialR * 8 + initialF];
-
-        const tempClone = targetRef.cloneNode(); // clone of targetRef
-        targetRef.style.display = "none"; // hide targetRef
-
-        // styles for clone
+        const tempClone = targetRef.cloneNode(); // create clone of piece which the player will drag
         tempClone.style.position = "absolute";
-        tempClone.style.top = initialY - boardBoundingRect.top - offsetY + "px";
-        tempClone.style.left = initialX - boardBoundingRect.left - offsetX + "px";
+        tempClone.style.left = e.pageX - boardRect.left - offsetSquareX + "px";
+        tempClone.style.top = e.pageY - boardRect.top - offsetSquareY + "px";
+        boardRef.appendChild(tempClone); // append clone
 
-        nodeRef.appendChild(tempClone); // append to dom
+        targetRef.style.visibility = "hidden"; // hide original piece
 
-        function handleMouseMove(e) {
-            tempClone.style.top = e.pageY - boardBoundingRect.top - offsetY + "px";
-            tempClone.style.left = e.pageX - boardBoundingRect.left - offsetX + "px";
+        function onDrag(e) {
+            tempClone.style.left = e.pageX - boardRect.left - offsetSquareX + "px";
+            tempClone.style.top = e.pageY - boardRect.top - offsetSquareY + "px";
         }
 
-        function handleMouseUp(e) {
-            const finalR = ~~((e.pageY - boardBoundingRect.top) / targetBoundingRect.height);
-            const finalF = ~~((e.pageX - boardBoundingRect.left) / targetBoundingRect.width);
-            const finalSquare = constants.MAILBOX64[finalR * 8 + finalF];
+        function onDrop(e) {
+            const finalSquare = getSquareFromOffsetXY(e.pageX, e.pageY);
 
-            if (selectedSquare !== finalSquare && onMoveCallback(selectedSquare, finalSquare)) {
-                // valid move
-                $store[finalSquare] = $store[selectedSquare];
-                $store[selectedSquare] = constants.EMPTY;
+            if (selectedSquare !== finalSquare) {
+                if (onMoveCallback(selectedSquare, finalSquare)) {
+                    $store[finalSquare] = $store[selectedSquare];
+                    $store[selectedSquare] = constants.EMPTY;
 
-                $store = $store; // force rerender
+                    selectedSquare = null;
+                    highlightedSquare = null;
+
+                    rerender();
+
+                    boardRef.removeEventListener("mousemove", onDrag);
+                    boardRef.removeEventListener("mouseup", onDrop);
+                } else {
+                    // * TODO
+                }
             } else {
-                // invalid move
-                targetRef.style.display = "block"; // prevent rerender
+                targetRef.style.visibility = "visible";
+                highlightedSquare = finalSquare;
             }
-            tempClone.remove(); // delete clone
 
-            selectedSquare = null;
-
-            //remove listeners
-            nodeRef.removeEventListener("mousemove", handleMouseMove);
-            nodeRef.removeEventListener("mouseup", handleMouseUp);
+            tempClone.remove(); // remove clone
         }
 
-        // bind listeners
-        nodeRef.addEventListener("mousemove", handleMouseMove);
-        nodeRef.addEventListener("mouseup", handleMouseUp);
+        boardRef.addEventListener("mousemove", onDrag);
+        boardRef.addEventListener("mouseup", onDrop);
     }
 
-    function handleClick(e) {
-        const boardBoundingRect = nodeRef.getBoundingClientRect();
-        const targetBoundingRect = e.target.getBoundingClientRect();
+    // ==========================
+    // UTILS
+    // ==========================
 
-        const clickedR = ~~((e.pageY - boardBoundingRect.top) / targetBoundingRect.height);
-        const clickedF = ~~((e.pageX - boardBoundingRect.left) / targetBoundingRect.width);
-        const clickedSquare = constants.MAILBOX64[clickedR * 8 + clickedF];
+    function getOffsetRect(el) {
+        let rect = el.getBoundingClientRect();
 
-        console.log(clickedSquare);
+        let scrollX = window.scrollX || window.pageXOffset;
+        let scrollY = window.scrollY || window.pageYOffset;
 
-        if (!selectedSquare) {
-            // no square selected
-            selectedSquare = clickedSquare;
-            return;
-        } else if (
-            clickedSquare !== selectedSquare &&
-            onMoveCallback(selectedSquare, finalSquare)
-        ) {
-            $store[clickedSquare] = $store[selectedSquare];
-            $store[selectedSquare] = constants.EMPTY;
+        let left = rect.left + scrollX;
+        let top = rect.top + scrollY;
 
-            $store = $store; // force rerender
-        }
+        return {
+            left,
+            top,
+            right: rect.right + scrollX,
+            bottom: rect.bottom + scrollY,
+            x: rect.x === undefined ? left : rect.x + scrollX,
+            y: rect.y === undefined ? top : rect.y + scrollY,
+            width: rect.width,
+            height: rect.height,
+        };
+    }
 
-        selectedSquare = null;
+    function rerender() {
+        store.set($store);
     }
 
     // ==========================
@@ -126,15 +141,18 @@
 </script>
 
 <div class="wrapper" style="width: {size}px; height: {size}px">
-    <div bind:this={nodeRef} class="chessboard" bind:clientWidth={boardSize}>
+    <div class="chessboard" bind:this={boardRef} bind:clientWidth={boardSize}>
         {#each $boardState as square, i}
-            <div class={(~~(i / 8) + (i % 8)) % 2 ? "light-square" : "dark-square"}>
+            <div
+                class="{(~~(i / 8) + (i % 8)) % 2 ? 'light-square' : 'dark-square'} chess-square"
+                class:highlight-square={i === highlightedSquare}
+                data-square={i}
+            >
                 {#if square != constants.EMPTY}
                     <ChessPiece
-                        on:click={interactive ? handleClick : undefined}
-                        on:mousedown={interactive ? handleMouseDown : undefined}
                         type={square}
                         size={boardSize / 8}
+                        on:mousedown={interactive ? onSquareDragStart : undefined}
                     />
                 {/if}
             </div>
@@ -153,13 +171,23 @@
         justify-items: stretch;
         border: solid black 3px;
         border-radius: 5px;
+        user-select: none;
     }
 
-    .dark-square {
+    .chess-square {
+        user-select: none;
+    }
+
+    .chess-square.dark-square {
         background-color: #d08b18;
     }
 
-    .light-square {
+    .chess-square.light-square {
         background-color: #fce4b2;
+    }
+
+    .chess-square.highlight-square {
+        border: solid yellow 1px;
+        box-sizing: border-box;
     }
 </style>

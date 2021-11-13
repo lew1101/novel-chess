@@ -25,11 +25,11 @@
     class="chesspiece"
     style="background-image: url('{PIECE_TYPES[type]}'); width: {size}px; height:{size}px;"
     on:mousedown
-    on:click
 />
 
 <style>
     .chesspiece {
+        user-select: none;
         background-repeat: no-repeat;
         background-size: contain;
     }
