@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
     import * as constants from "../../chess/constants";
-    import { derived } from "svelte/store";
+    import { isPiece } from "../../chess/utils";
+    import { derived, Writable, Readable } from "svelte/store";
     import ChessPiece from "./ChessPiece.svelte";
 
     // ==========================
@@ -8,18 +9,18 @@
     // ==========================
 
     // EXPOSED PROPS
-    export let store; // instance of writable
-    export let debug = false;
-    export let size = 800; // in px
-    export let flipped = false;
-    export let interactive = true;
-    export let showNotation = false;
-    export let showHints = true;
-    export let onMoveCallback = (initial, final) => true; // (initial: number, final: number) => bool
+    export let store: Writable<Chess.Board>;
+    export let debug: boolean = false;
+    export let size: number = 800; // in px
+    export let flipped: boolean = false;
+    export let interactive: boolean = true;
+    export let showNotation: boolean = true;
+    export let showHints: boolean = true;
+    export let onMoveCallback: (initial: number, final: number) => boolean = () => true; // (initial: number, final: number) => bool
 
     // LOCAL MEMBERS
-    let boardRef; // reference to chessboard itself
-    let boardSize; // bound to clientWidth of board
+    let boardRef: HTMLElement; // reference to chessboard itself
+    let boardSize: number; // bound to clientWidth of board
     let showingHints = false;
     let selectedSquare = null;
     let highlightedSquare = null;
@@ -29,11 +30,11 @@
     $: boardState = derived(store, ($state) => mailbox64.map((s) => $state[s]));
 
     // FUNCTIONS
-    function getSquare(s) {
+    function getSquare(s: number) {
         return boardRef.querySelectorAll("div[data-square='" + s + "']");
     }
 
-    function getSquareFromOffsetXY(x, y) {
+    function getSquareFromOffsetXY(x: number, y: number) {
         const boardRect = getOffsetRect(boardRef);
         let rank = ~~((y - boardRect.y) / (boardRect.height / 8));
         let file = ~~((x - boardRect.x) / (boardRect.width / 8));
@@ -41,18 +42,18 @@
         return mailbox64[rank * 8 + file];
     }
 
-    function showHintsForSquare(square) {}
+    function showHintsForSquare(square: number) {}
 
-    function hideHintsForSquare(square) {}
+    function hideHintsForSquare(square: number) {}
 
     // ==========================
     // HANDLERS
     // ==========================
 
-    function onSquareDragStart(e) {
+    function onSquareDragStart(e: MouseEvent) {
         if (selectedSquare) return; // selected piece is taking target, target shouldn't run
 
-        const targetRef = e.target; // piece
+        const targetRef = <HTMLElement>e.target; // piece
         const targetRect = getOffsetRect(targetRef);
         const boardRect = getOffsetRect(boardRef);
         const offsetSquareX = targetRect.width / 2;
@@ -60,7 +61,7 @@
 
         selectedSquare = getSquareFromOffsetXY(e.pageX, e.pageY);
 
-        const tempClone = targetRef.cloneNode(); // create clone of piece which the player will drag
+        const tempClone = <HTMLElement>targetRef.cloneNode(); // create clone of piece which the player will drag
         tempClone.style.position = "absolute";
         tempClone.style.left = e.pageX - boardRect.left - offsetSquareX + "px";
         tempClone.style.top = e.pageY - boardRect.top - offsetSquareY + "px";
@@ -68,12 +69,12 @@
 
         targetRef.style.visibility = "hidden"; // hide original piece
 
-        function onDrag(e) {
+        function onDrag(e: MouseEvent) {
             tempClone.style.left = e.pageX - boardRect.left - offsetSquareX + "px";
             tempClone.style.top = e.pageY - boardRect.top - offsetSquareY + "px";
         }
 
-        function onDrop(e) {
+        function onDrop(e: MouseEvent) {
             const finalSquare = getSquareFromOffsetXY(e.pageX, e.pageY);
 
             if (selectedSquare !== finalSquare) {
@@ -106,8 +107,7 @@
     // ==========================
     // UTILS
     // ==========================
-
-    function getOffsetRect(el) {
+    function getOffsetRect(el: HTMLElement) {
         let rect = el.getBoundingClientRect();
 
         let scrollX = window.scrollX || window.pageXOffset;
@@ -128,7 +128,7 @@
         };
     }
 
-    function rerender() {
+    function rerender(): void {
         store.set($store);
     }
 
@@ -145,10 +145,10 @@
         {#each $boardState as square, i}
             <div
                 class="{(~~(i / 8) + (i % 8)) % 2 ? 'light-square' : 'dark-square'} chess-square"
-                class:highlight-square={i === highlightedSquare}
+                class:highlight-square-1={i === highlightedSquare}
                 data-square={i}
             >
-                {#if square != constants.EMPTY}
+                {#if isPiece(square)}
                     <ChessPiece
                         type={square}
                         size={boardSize / 8}
@@ -186,8 +186,13 @@
         background-color: #fce4b2;
     }
 
-    .chess-square.highlight-square {
-        border: solid yellow 1px;
+    .chess-square.highlight-square-1 {
+        border: solid yellow 1em;
+        box-sizing: border-box;
+    }
+
+    .chess-square.highlight-square-2 {
+        border: solid red 1em;
         box-sizing: border-box;
     }
 </style>

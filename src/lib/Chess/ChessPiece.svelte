@@ -1,23 +1,23 @@
-<script>
+<script lang="ts">
     import * as constants from "../../chess/constants";
 
     const PIECE_TYPES = {
-        [constants.WHITE_KING]: "./assets/chess-pieces/chess_wK45.svg",
-        [constants.WHITE_QUEEN]: "./assets/chess-pieces/chess_wQ45.svg",
-        [constants.WHITE_ROOK]: "./assets/chess-pieces/chess_wR45.svg",
-        [constants.WHITE_BISHOP]: "./assets/chess-pieces/chess_wB45.svg",
-        [constants.WHITE_KNIGHT]: "./assets/chess-pieces/chess_wN45.svg",
-        [constants.WHITE_PAWN]: "./assets/chess-pieces/chess_wP45.svg",
-        [constants.BLACK_KING]: "./assets/chess-pieces/chess_bK45.svg",
-        [constants.BLACK_QUEEN]: "./assets/chess-pieces/chess_bQ45.svg",
-        [constants.BLACK_ROOK]: "./assets/chess-pieces/chess_bR45.svg",
-        [constants.BLACK_BISHOP]: "./assets/chess-pieces/chess_bB45.svg",
-        [constants.BLACK_KNIGHT]: "./assets/chess-pieces/chess_bN45.svg",
-        [constants.BLACK_PAWN]: "./assets/chess-pieces/chess_bP45.svg",
+        [constants.WHITE_KING]: "$lib/assets/chess-pieces/chess_wK45.svg",
+        [constants.WHITE_QUEEN]: "$lib/assets/chess-pieces/chess_wQ45.svg",
+        [constants.WHITE_ROOK]: "$lib/assets/chess-pieces/chess_wR45.svg",
+        [constants.WHITE_BISHOP]: "$lib/assets/chess-pieces/chess_wB45.svg",
+        [constants.WHITE_KNIGHT]: "$lib/assets/chess-pieces/chess_wN45.svg",
+        [constants.WHITE_PAWN]: "$lib/assets/chess-pieces/chess_wP45.svg",
+        [constants.BLACK_KING]: "$lib/assets/chess-pieces/chess_bK45.svg",
+        [constants.BLACK_QUEEN]: "$lib/assets/chess-pieces/chess_bQ45.svg",
+        [constants.BLACK_ROOK]: "$lib/assets/chess-pieces/chess_bR45.svg",
+        [constants.BLACK_BISHOP]: "$lib/assets/chess-pieces/chess_bB45.svg",
+        [constants.BLACK_KNIGHT]: "$lib/assets/chess-pieces/chess_bN45.svg",
+        [constants.BLACK_PAWN]: "$lib/assets/chess-pieces/chess_bP45.svg",
     };
 
-    export let type;
-    export let size;
+    export let type: Chess.Piece;
+    export let size: number;
 </script>
 
 <!-- on:event without value forwards the event to parent -->

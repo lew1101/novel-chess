@@ -1,18 +1,18 @@
-export const EMPTY = ".";
+export const EMPTY: Chess.EmptySquare = ".";
 
-export const WHITE_KING = "K";
-export const WHITE_QUEEN = "Q";
-export const WHITE_ROOK = "R";
-export const WHITE_BISHOP = "B";
-export const WHITE_KNIGHT = "N";
-export const WHITE_PAWN = "P";
+export const WHITE_KING: Chess.WhitePiece = "K";
+export const WHITE_QUEEN: Chess.WhitePiece = "Q";
+export const WHITE_ROOK: Chess.WhitePiece = "R";
+export const WHITE_BISHOP: Chess.WhitePiece = "B";
+export const WHITE_KNIGHT: Chess.WhitePiece = "N";
+export const WHITE_PAWN: Chess.WhitePiece = "P";
 
-export const BLACK_KING = "k";
-export const BLACK_QUEEN = "q";
-export const BLACK_ROOK = "r";
-export const BLACK_BISHOP = "b";
-export const BLACK_KNIGHT = "n";
-export const BLACK_PAWN = "p";
+export const BLACK_KING: Chess.BlackPiece = "k";
+export const BLACK_QUEEN: Chess.BlackPiece = "q";
+export const BLACK_ROOK: Chess.BlackPiece = "r";
+export const BLACK_BISHOP: Chess.BlackPiece = "b";
+export const BLACK_KNIGHT: Chess.BlackPiece = "n";
+export const BLACK_PAWN: Chess.BlackPiece = "p";
 
 export const WHITE_PIECES = {
     WHITE_KING,
@@ -31,8 +31,13 @@ export const BLACK_PIECES = {
     BLACK_PAWN,
 };
 
+export const PIECES = {
+    ...WHITE_PIECES,
+    ...BLACK_PIECES,
+};
+
 //prettier-ignore
-export const STARTING_POS = [
+export const STARTING_POS: Chess.Board = [
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
     -1, "r", "n", "b", "q", "k", "b", "n", "r",  -1,
@@ -48,7 +53,7 @@ export const STARTING_POS = [
 ];
 
 // prettier-ignore
-export const EMPTY_BOARD = [
+export const EMPTY_BOARD: Chess.Board = [
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
     -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
