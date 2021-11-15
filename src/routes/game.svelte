@@ -11,6 +11,7 @@
 </script>
 
 <ChessBoard
+    debug={true}
     width={800}
     height={800}
     interactive={true}

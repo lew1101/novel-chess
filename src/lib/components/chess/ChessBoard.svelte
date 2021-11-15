@@ -24,10 +24,9 @@
     let boardWidth: number; // bound to clientWidth of board
     let boardHeight: number;
     let showingHints = false;
+    let isDragging = false;
+    let draggedOverSquare = null;
     let selectedSquare = null;
-    let dragOverSquare = null;
-    let squaresHighlighted = [];
-    let highlightedSquare = null;
 
     // COMPUTED MEMBERS
     $: mailbox64 = flipped ? [...constants.MAILBOX64].reverse() : constants.MAILBOX64; //conversion from 8x8 coords to 10x12 coords
@@ -36,11 +35,12 @@
     // ==========================
     // FUNCTIONS
     // ==========================
-    function getSquare(s: number) {
-        return boardRef.querySelectorAll("div[data-square='" + s + "']");
+
+    function getSquareElement(s: number) {
+        return constants.MAILBOX64.includes(s) ? boardRef.children[constants.MAILBOX120[s]] : null;
     }
 
-    function getSquareFromOffsetXY(x: number, y: number) {
+    function getSquareFromPageXY(x: number, y: number) {
         const boardRect = getOffsetRect(boardRef);
         let rank = ~~((y - boardRect.y) / (boardRect.height / 8));
         let file = ~~((x - boardRect.x) / (boardRect.width / 8));
@@ -51,7 +51,9 @@
 
     // HANDLERS
     function onSquareDragStart(e: MouseEvent) {
-        if (selectedSquare) return; // selected piece is taking target, target shouldn't run
+        if (selectedSquare) return; // selected piece is taking the target, target shouldn't run
+
+        isDragging = true;
 
         const targetRef = <HTMLElement>e.target; // piece
         const targetRect = getOffsetRect(targetRef);
@@ -59,7 +61,7 @@
         const offsetSquareX = targetRect.width / 2;
         const offsetSquareY = targetRect.height / 2;
 
-        selectedSquare = getSquareFromOffsetXY(e.pageX, e.pageY);
+        let initialSquare = getSquareFromPageXY(e.pageX, e.pageY);
 
         const tempClone = <HTMLElement>targetRef.cloneNode(); // create clone of piece which the player will drag
         tempClone.style.position = "absolute";
@@ -73,47 +75,50 @@
             tempClone.style.left = e.pageX - boardRect.left - offsetSquareX + "px";
             tempClone.style.top = e.pageY - boardRect.top - offsetSquareY + "px";
 
-            dragOverSquare = getSquareFromOffsetXY(e.pageX, e.pageY);
+            draggedOverSquare = getSquareFromPageXY(e.pageX, e.pageY);
         }
 
         function onDrop(e: MouseEvent) {
-            const finalSquare = getSquareFromOffsetXY(e.pageX, e.pageY);
+            const finalSquare = getSquareFromPageXY(e.pageX, e.pageY);
+            const parentSquare = <HTMLElement>targetRef.parentNode;
 
-            if (selectedSquare !== finalSquare) {
-                if (onMoveCallback(selectedSquare, finalSquare)) {
-                    $store[finalSquare] = $store[selectedSquare];
-                    $store[selectedSquare] = constants.EMPTY;
+            if (initialSquare !== finalSquare && onMoveCallback(initialSquare, finalSquare)) {
+                $store[finalSquare] = $store[initialSquare];
+                $store[initialSquare] = constants.EMPTY;
 
+                parentSquare.classList.remove("highlight-square");
+
+                selectedSquare = null;
+                draggedOverSquare = null;
+
+                rerender();
+
+                boardRef.removeEventListener("mousemove", onDrag);
+                boardRef.removeEventListener("mouseup", onDrop);
+            } else {
+                targetRef.style.visibility = "visible";
+
+                if (selectedSquare) {
+                    parentSquare.classList.remove("highlight-square");
                     selectedSquare = null;
-                    highlightedSquare = null;
-                    dragOverSquare = null;
 
                     rerender();
 
                     boardRef.removeEventListener("mousemove", onDrag);
                     boardRef.removeEventListener("mouseup", onDrop);
                 } else {
-                    targetRef.style.visibility = "visible";
-                    highlightedSquare = finalSquare;
+                    parentSquare.classList.add("highlight-square");
+                    selectedSquare = initialSquare;
                 }
-            } else {
-                targetRef.style.visibility = "visible";
-                highlightedSquare = finalSquare;
             }
+
+            isDragging = false;
 
             tempClone.remove(); // remove clone
         }
 
         boardRef.addEventListener("mousemove", onDrag);
         boardRef.addEventListener("mouseup", onDrop);
-    }
-
-    function addHighlight(el: HTMLElement) {
-        el.classList.add("highlight-square");
-    }
-
-    function removeHighlight(el: HTMLElement) {
-        el.classList.remove("highlight-square");
     }
 
     function showHintsForSquare(square: number) {}
@@ -186,9 +191,9 @@
                 <li class="notation-item">{rank}</li>
             {/each}
         </div>
-        <div class="file-notation">
+        <div class="file-notation" style="font-size: {boardWidth * 0.03}px">
             {#each constants.FILES as file}
-                <li class="notation-item" style="font-size: {boardWidth * 0.03}px">{file}</li>
+                <li class="notation-item">{file}</li>
             {/each}
         </div>
     {/if}
@@ -197,11 +202,12 @@
 <style global>
     .chessboard-wrapper {
         display: grid;
-        grid-template-columns: auto 1fr;
-        grid-template-rows: 1fr auto;
+        grid-template-columns: 5% 1fr;
+        grid-template-rows: 1fr 5%;
         grid-template-areas:
             "rank-notation chessboard"
             ". file-notation";
+        grid-gap: 0.5em;
     }
     .chessboard {
         grid-area: chessboard;
@@ -210,8 +216,8 @@
         grid-template-rows: repeat(8, 1fr);
         gap: 0, 0;
         justify-items: stretch;
-        border-radius: 0.5%;
         overflow: hidden;
+        border-radius: 0.5%;
         user-select: none;
     }
 
@@ -233,13 +239,13 @@
     }
 
     .chess-square.dragged-over-square {
+        border: solid 20%;
     }
 
     .notation-item {
         list-style: none;
-        padding: 0.5em;
-        width: 1em;
-        height: 1em;
+        /* width: 1em;
+        height: 1em; */
         font-size: 1em;
         font-weight: bold;
         font-family: "Roboto", sans-serif;
@@ -249,7 +255,7 @@
     .rank-notation {
         grid-area: rank-notation;
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
         justify-content: space-around;
         text-align: center;
     }

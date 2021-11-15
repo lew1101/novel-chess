@@ -12,8 +12,6 @@ namespace Chess {
     type SquareInvalidValue = -1;
     type SquareValues = SquareValidValue | SquareInvalidValue;
 
-    type Square = number;
-
     // prettier-ignore
     type Board = SquareValues[]
 }
