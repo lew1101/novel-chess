@@ -1,7 +1,7 @@
 <script lang="ts">
-    import * as constants from "../../chess/constants";
-    import { isPiece } from "../../chess/utils";
-    import { derived, Writable, Readable } from "svelte/store";
+    import * as constants from "$lib/chess/constants";
+    import { isPiece } from "$lib/chess/utils";
+    import { derived, Writable } from "svelte/store";
     import ChessPiece from "./ChessPiece.svelte";
 
     // ==========================
@@ -134,13 +134,14 @@
 
     // ==========================
 
+    console.log(isPiece("k"));
     // DEBUG
     $: if (debug) {
         console.log($store);
     }
 </script>
 
-<div class="wrapper" style="width: {size}px; height: {size}px">
+<div class="chessboard-wrapper" style="width: {size}px; height: {size}px">
     <div class="chessboard" bind:this={boardRef} bind:clientWidth={boardSize}>
         {#each $boardState as square, i}
             <div
@@ -161,6 +162,9 @@
 </div>
 
 <style>
+    .chessboard-wrapper {
+        display: flex;
+    }
     .chessboard {
         width: 100%;
         height: 100%;

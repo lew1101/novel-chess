@@ -14,27 +14,24 @@ export const BLACK_BISHOP: Chess.BlackPiece = "b";
 export const BLACK_KNIGHT: Chess.BlackPiece = "n";
 export const BLACK_PAWN: Chess.BlackPiece = "p";
 
-export const WHITE_PIECES = {
+export const WHITE_PIECES = [
     WHITE_KING,
     WHITE_QUEEN,
     WHITE_ROOK,
     WHITE_BISHOP,
     WHITE_KNIGHT,
     WHITE_PAWN,
-};
-export const BLACK_PIECES = {
+];
+export const BLACK_PIECES = [
     BLACK_KING,
     BLACK_QUEEN,
     BLACK_ROOK,
     BLACK_BISHOP,
     BLACK_KNIGHT,
     BLACK_PAWN,
-};
+];
 
-export const PIECES = {
-    ...WHITE_PIECES,
-    ...BLACK_PIECES,
-};
+export const PIECES = [...WHITE_PIECES, ...BLACK_PIECES];
 
 //prettier-ignore
 export const STARTING_POS: Chess.Board = [
