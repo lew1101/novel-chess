@@ -4,6 +4,17 @@
     import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 
     let chessStore = writable(constants.STARTING_POS);
+
+    function onMoveCallback(initialSquare: number, finalSquare: number): boolean {
+        return true;
+    }
 </script>
 
-<ChessBoard store={chessStore} />
+<ChessBoard
+    width={800}
+    height={800}
+    interactive={true}
+    showNotation={true}
+    store={chessStore}
+    {onMoveCallback}
+/>

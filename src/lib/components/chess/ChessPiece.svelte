@@ -1,7 +1,7 @@
 <script lang="ts">
     import * as constants from "$lib/chess/constants";
 
-    const PIECE_TYPES = {
+    const PIECE_SVG = {
         [constants.WHITE_KING]: "/assets/chess-pieces/chess_wK45.svg",
         [constants.WHITE_QUEEN]: "/assets/chess-pieces/chess_wQ45.svg",
         [constants.WHITE_ROOK]: "/assets/chess-pieces/chess_wR45.svg",
@@ -17,13 +17,14 @@
     };
 
     export let type: Chess.Piece;
-    export let size: number;
+    export let width: number;
+    export let height: number;
 </script>
 
 <!-- on:event without value forwards the event to parent -->
 <div
     class="chesspiece"
-    style="background-image: url('{PIECE_TYPES[type]}'); width: {size}px; height:{size}px;"
+    style="background-image: url('{PIECE_SVG[type]}'); width: {width}px; height:{height}px;"
     on:mousedown
 />
 

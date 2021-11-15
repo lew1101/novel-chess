@@ -1,3 +1,6 @@
+export const RANKS: Chess.Rank[] = ["1", "2", "3", "4", "5", "6", "7", "8"];
+export const FILES: Chess.File[] = ["a", "b", "c", "d", "e", "f", "g", "h"];
+
 export const EMPTY: Chess.EmptySquare = ".";
 
 export const WHITE_KING: Chess.WhitePiece = "K";

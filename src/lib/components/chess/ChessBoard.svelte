@@ -10,26 +10,32 @@
 
     // EXPOSED PROPS
     export let store: Writable<Chess.Board>;
+    export let width: number = 400;
+    export let height: number = 400;
     export let debug: boolean = false;
-    export let size: number = 800; // in px
     export let flipped: boolean = false;
     export let interactive: boolean = true;
-    export let showNotation: boolean = true;
+    export let showNotation: boolean = false;
     export let showHints: boolean = true;
     export let onMoveCallback: (initial: number, final: number) => boolean = () => true; // (initial: number, final: number) => bool
 
-    // LOCAL MEMBERS
+    // INTERNAL STATE
     let boardRef: HTMLElement; // reference to chessboard itself
-    let boardSize: number; // bound to clientWidth of board
+    let boardWidth: number; // bound to clientWidth of board
+    let boardHeight: number;
     let showingHints = false;
     let selectedSquare = null;
+    let dragOverSquare = null;
+    let squaresHighlighted = [];
     let highlightedSquare = null;
 
     // COMPUTED MEMBERS
     $: mailbox64 = flipped ? [...constants.MAILBOX64].reverse() : constants.MAILBOX64; //conversion from 8x8 coords to 10x12 coords
     $: boardState = derived(store, ($state) => mailbox64.map((s) => $state[s]));
 
+    // ==========================
     // FUNCTIONS
+    // ==========================
     function getSquare(s: number) {
         return boardRef.querySelectorAll("div[data-square='" + s + "']");
     }
@@ -38,18 +44,12 @@
         const boardRect = getOffsetRect(boardRef);
         let rank = ~~((y - boardRect.y) / (boardRect.height / 8));
         let file = ~~((x - boardRect.x) / (boardRect.width / 8));
+        let square = mailbox64[rank * 8 + file];
 
-        return mailbox64[rank * 8 + file];
+        return constants.MAILBOX64.includes(square) ? square : null;
     }
 
-    function showHintsForSquare(square: number) {}
-
-    function hideHintsForSquare(square: number) {}
-
-    // ==========================
     // HANDLERS
-    // ==========================
-
     function onSquareDragStart(e: MouseEvent) {
         if (selectedSquare) return; // selected piece is taking target, target shouldn't run
 
@@ -72,6 +72,8 @@
         function onDrag(e: MouseEvent) {
             tempClone.style.left = e.pageX - boardRect.left - offsetSquareX + "px";
             tempClone.style.top = e.pageY - boardRect.top - offsetSquareY + "px";
+
+            dragOverSquare = getSquareFromOffsetXY(e.pageX, e.pageY);
         }
 
         function onDrop(e: MouseEvent) {
@@ -84,13 +86,15 @@
 
                     selectedSquare = null;
                     highlightedSquare = null;
+                    dragOverSquare = null;
 
                     rerender();
 
                     boardRef.removeEventListener("mousemove", onDrag);
                     boardRef.removeEventListener("mouseup", onDrop);
                 } else {
-                    // * TODO
+                    targetRef.style.visibility = "visible";
+                    highlightedSquare = finalSquare;
                 }
             } else {
                 targetRef.style.visibility = "visible";
@@ -103,6 +107,18 @@
         boardRef.addEventListener("mousemove", onDrag);
         boardRef.addEventListener("mouseup", onDrop);
     }
+
+    function addHighlight(el: HTMLElement) {
+        el.classList.add("highlight-square");
+    }
+
+    function removeHighlight(el: HTMLElement) {
+        el.classList.remove("highlight-square");
+    }
+
+    function showHintsForSquare(square: number) {}
+
+    function hideHintsForSquare(square: number) {}
 
     // ==========================
     // UTILS
@@ -128,58 +144,80 @@
         };
     }
 
-    function rerender(): void {
+    function rerender() {
         store.set($store);
     }
 
     // ==========================
 
-    console.log(isPiece("k"));
     // DEBUG
     $: if (debug) {
         console.log($store);
     }
 </script>
 
-<div class="chessboard-wrapper" style="width: {size}px; height: {size}px">
-    <div class="chessboard" bind:this={boardRef} bind:clientWidth={boardSize}>
+<div class="chessboard-wrapper" style="width: {width}px; height: {height}px">
+    <div
+        class="chessboard"
+        bind:this={boardRef}
+        bind:clientWidth={boardWidth}
+        bind:clientHeight={boardHeight}
+    >
         {#each $boardState as square, i}
             <div
                 class="{(~~(i / 8) + (i % 8)) % 2 ? 'light-square' : 'dark-square'} chess-square"
-                class:highlight-square-1={i === highlightedSquare}
                 data-square={i}
             >
                 {#if isPiece(square)}
                     <ChessPiece
                         type={square}
-                        size={boardSize / 8}
+                        width={boardWidth / 8}
+                        height={boardHeight / 8}
                         on:mousedown={interactive ? onSquareDragStart : undefined}
                     />
                 {/if}
             </div>
         {/each}
     </div>
+
+    {#if showNotation}
+        <div class="rank-notation" style="font-size: {boardHeight * 0.03}px">
+            {#each constants.RANKS as rank}
+                <li class="notation-item">{rank}</li>
+            {/each}
+        </div>
+        <div class="file-notation">
+            {#each constants.FILES as file}
+                <li class="notation-item" style="font-size: {boardWidth * 0.03}px">{file}</li>
+            {/each}
+        </div>
+    {/if}
 </div>
 
-<style>
+<style global>
     .chessboard-wrapper {
-        display: flex;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: 1fr auto;
+        grid-template-areas:
+            "rank-notation chessboard"
+            ". file-notation";
     }
     .chessboard {
-        width: 100%;
-        height: 100%;
+        grid-area: chessboard;
         display: inline-grid;
         grid-template-columns: repeat(8, 1fr);
         grid-template-rows: repeat(8, 1fr);
         gap: 0, 0;
         justify-items: stretch;
-        border: solid black 3px;
-        border-radius: 5px;
+        border-radius: 0.5%;
+        overflow: hidden;
         user-select: none;
     }
 
     .chess-square {
         user-select: none;
+        box-sizing: border-box;
     }
 
     .chess-square.dark-square {
@@ -190,13 +228,36 @@
         background-color: #fce4b2;
     }
 
-    .chess-square.highlight-square-1 {
-        border: solid yellow 1em;
-        box-sizing: border-box;
+    .chess-square.highlight-square {
+        background-color: yellow;
     }
 
-    .chess-square.highlight-square-2 {
-        border: solid red 1em;
-        box-sizing: border-box;
+    .chess-square.dragged-over-square {
+    }
+
+    .notation-item {
+        list-style: none;
+        padding: 0.5em;
+        width: 1em;
+        height: 1em;
+        font-size: 1em;
+        font-weight: bold;
+        font-family: "Roboto", sans-serif;
+        color: #989795;
+    }
+
+    .rank-notation {
+        grid-area: rank-notation;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        text-align: center;
+    }
+
+    .file-notation {
+        grid-area: file-notation;
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
     }
 </style>
