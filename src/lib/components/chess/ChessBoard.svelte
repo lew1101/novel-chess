@@ -63,6 +63,9 @@
 
         let initialSquare = getSquareFromPageXY(e.pageX, e.pageY);
 
+        const parentSquare = <HTMLElement>targetRef.parentNode;
+        parentSquare.classList.add("highlight-square");
+
         const tempClone = <HTMLElement>targetRef.cloneNode(); // create clone of piece which the player will drag
         tempClone.style.position = "absolute";
         tempClone.style.left = e.pageX - boardRect.left - offsetSquareX + "px";
@@ -80,7 +83,6 @@
 
         function onDrop(e: MouseEvent) {
             const finalSquare = getSquareFromPageXY(e.pageX, e.pageY);
-            const parentSquare = <HTMLElement>targetRef.parentNode;
 
             if (initialSquare !== finalSquare && onMoveCallback(initialSquare, finalSquare)) {
                 $store[finalSquare] = $store[initialSquare];
@@ -107,7 +109,6 @@
                     boardRef.removeEventListener("mousemove", onDrag);
                     boardRef.removeEventListener("mouseup", onDrop);
                 } else {
-                    parentSquare.classList.add("highlight-square");
                     selectedSquare = initialSquare;
                 }
             }
@@ -234,8 +235,12 @@
         background-color: #fce4b2;
     }
 
-    .chess-square.highlight-square {
-        background-color: yellow;
+    .chess-square.light-square.highlight-square {
+        background-color: #fdf158;
+    }
+
+    .chess-square.dark-square.highlight-square {
+        background-color: #e7c50b;
     }
 
     .chess-square.dragged-over-square {

@@ -8,10 +8,13 @@ namespace Chess {
 
     type EmptySquare = ".";
 
+    type MoveType = 0 | 1 | 2 | 3;
+
     type SquareValidValue = Piece | EmptySquare;
     type SquareInvalidValue = -1;
     type SquareValues = SquareValidValue | SquareInvalidValue;
 
     // prettier-ignore
-    type Board = SquareValues[]
+    type Board120 = SquareValues[]
+    type Board64 = SquareValidValue[];
 }
