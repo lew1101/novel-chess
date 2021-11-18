@@ -2,6 +2,7 @@ export const RANKS: Chess.Rank[] = ["1", "2", "3", "4", "5", "6", "7", "8"];
 export const FILES: Chess.File[] = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 export const EMPTY: Chess.EmptySquare = ".";
+export const INVALID_SQUARE: Chess.SquareInvalidValue = -1;
 
 export const WHITE_KING: Chess.WhitePiece = "K";
 export const WHITE_QUEEN: Chess.WhitePiece = "Q";
@@ -33,11 +34,15 @@ export const BLACK_PIECES = [
     BLACK_KNIGHT,
     BLACK_PAWN,
 ];
-
 export const PIECES = [...WHITE_PIECES, ...BLACK_PIECES];
 
+export const TYPICAL_MOVE: Chess.MoveType = 0;
+export const CASTLE_MOVE: Chess.MoveType = 1;
+export const PROMOTION_MOVE: Chess.MoveType = 2;
+export const ENPASSANT_MOVE: Chess.MoveType = 3;
+
 //prettier-ignore
-export const STARTING_POS: Chess.Board = [
+export const STARTING_POS: Chess.Board120 = [
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
     -1, "r", "n", "b", "q", "k", "b", "n", "r",  -1,
@@ -53,7 +58,7 @@ export const STARTING_POS: Chess.Board = [
 ];
 
 // prettier-ignore
-export const EMPTY_BOARD: Chess.Board = [
+export const EMPTY_BOARD: Chess.Board120 = [
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
     -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
@@ -95,3 +100,15 @@ export const MAILBOX64 = [
     81, 82, 83, 84, 85, 86, 87, 88,
     91, 92, 93, 94, 95, 96, 97, 98,
 ];
+
+// prettier-ignore
+export const squareToCoords = [
+    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+]
