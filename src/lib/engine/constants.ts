@@ -2,7 +2,7 @@ export const RANKS: Chess.Rank[] = ["1", "2", "3", "4", "5", "6", "7", "8"];
 export const FILES: Chess.File[] = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 export const EMPTY: Chess.EmptySquare = ".";
-export const INVALID_SQUARE: Chess.SquareInvalidValue = -1;
+export const INVALID_SQUARE: Chess.InvalidSquare = -1;
 
 export const WHITE_KING: Chess.WhitePiece = "K";
 export const WHITE_QUEEN: Chess.WhitePiece = "Q";
@@ -18,7 +18,7 @@ export const BLACK_BISHOP: Chess.BlackPiece = "b";
 export const BLACK_KNIGHT: Chess.BlackPiece = "n";
 export const BLACK_PAWN: Chess.BlackPiece = "p";
 
-export const WHITE_PIECES = [
+export const WHITE_PIECES: Chess.WhitePiece[] = [
     WHITE_KING,
     WHITE_QUEEN,
     WHITE_ROOK,
@@ -26,7 +26,7 @@ export const WHITE_PIECES = [
     WHITE_KNIGHT,
     WHITE_PAWN,
 ];
-export const BLACK_PIECES = [
+export const BLACK_PIECES: Chess.BlackPiece[] = [
     BLACK_KING,
     BLACK_QUEEN,
     BLACK_ROOK,
@@ -34,15 +34,17 @@ export const BLACK_PIECES = [
     BLACK_KNIGHT,
     BLACK_PAWN,
 ];
-export const PIECES = [...WHITE_PIECES, ...BLACK_PIECES];
+export const PIECES: Chess.Piece[] = [...WHITE_PIECES, ...BLACK_PIECES];
 
-export const TYPICAL_MOVE: Chess.MoveType = 0;
-export const CASTLE_MOVE: Chess.MoveType = 1;
-export const PROMOTION_MOVE: Chess.MoveType = 2;
-export const ENPASSANT_MOVE: Chess.MoveType = 3;
+export const TYPICAL_MOVE = 0;
+export const CASTLE_MOVE = 1;
+export const PROMOTION_MOVE = 2;
+export const ENPASSANT_MOVE = 3;
+
+export const MOVE_TYPES = [TYPICAL_MOVE, CASTLE_MOVE, PROMOTION_MOVE, ENPASSANT_MOVE];
 
 //prettier-ignore
-export const STARTING_POS: Chess.Board120 = [
+export const STARTING_POS: Chess.ChessBoard = [
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
     -1, "r", "n", "b", "q", "k", "b", "n", "r",  -1,
@@ -58,7 +60,7 @@ export const STARTING_POS: Chess.Board120 = [
 ];
 
 // prettier-ignore
-export const EMPTY_BOARD: Chess.Board120 = [
+export const EMPTY_BOARD: Chess.ChessBoard = [
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
     -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
     -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,

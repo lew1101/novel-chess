@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as constants from "$lib/chess/constants";
+    import * as constants from "$lib/engine/constants";
 
     const PIECE_SVG = {
         [constants.WHITE_KING]: "/assets/chess-pieces/chess_wK45.svg",
@@ -16,20 +16,15 @@
         [constants.BLACK_PAWN]: "/assets/chess-pieces/chess_bP45.svg",
     };
 
-    export let type: Chess.Piece;
-    export let width: number;
-    export let height: number;
+    export let value: Chess.Piece;
 </script>
 
-<!-- on:event without value forwards the event to parent -->
-<div
-    class="chesspiece"
-    style="background-image: url('{PIECE_SVG[type]}'); width: {width}px; height:{height}px;"
-    on:mousedown
-/>
+<div class="chess-piece" style="background-image: url({PIECE_SVG[value]})" on:mousedown />
 
 <style>
-    .chesspiece {
+    .chess-piece {
+        width: 100%;
+        height: 100%;
         user-select: none;
         background-repeat: no-repeat;
         background-size: contain;
