@@ -79,6 +79,7 @@
     // INTERNAL HANDLERS
     // ==========================
     // IT WORKS, ITS MAGIC, DO NOT TOUCH
+    // DRAGGING
     const pieceDragStart = (e: DragEvent, sq) => {
         _ds.from = sq;
         _ds.dragging = true;
@@ -87,23 +88,32 @@
         _draggedOverSquare = sq;
     };
 
+    const squareDragLeave = (sq) => {
+        _draggedOverSquare = _draggedOverSquare !== sq ? _draggedOverSquare : null;
+    };
+
     const squareDrop = (sq) => {
+        console.log("bruh");
         if (_ds.from !== sq && verifyMoveCallback(_ds.from, sq)) {
             moveFromTo(_ds.from, sq);
-            clearHighlight();
 
             _ds.from = null;
             _draggedOverSquare = null;
+        } else {
+            $boardState[sq].isHighlighted = true;
         }
 
+        clearHighlight();
         _ds.dragging = false;
     };
 
+    // CLICKING
     const squareClick = (sq) => {
         if (_ds.from) squareDrop(sq);
     };
 
-    const pieceClick = (sq) => {
+    const pieceClick = (e: MouseEvent, sq) => {
+        e.stopPropagation();
         if (!_ds.from) {
             _ds.from = sq;
             $boardState[sq].isHighlighted = true;
@@ -113,7 +123,6 @@
     // ==========================
 
     // DEBUG
-
     if (debug) {
         boardState.set(
             $boardState.map((s, i) => {
@@ -125,7 +134,7 @@
     }
 </script>
 
-<div class="chessboard-wrapper" style="width: {width}px; height: {height}px">
+<div {id} class="chessboard-wrapper" style="width: {width}px; height: {height}px">
     <!-- Board -->
     <div
         class="chessboard"
@@ -141,9 +150,10 @@
                 class:highlight-square={isHighlighted}
                 data-index={i}
                 use:dropzone={{ enabled: _isInteractive, tag: id }}
-                on:drop={_isInteractive ? (e) => squareDrop(i) : undefined}
-                on:dragenter={_isInteractive ? (e) => squareDragEnter(i) : undefined}
-                on:click={_isInteractive ? (e) => squareClick(i) : undefined}
+                on:drop={_isInteractive ? () => squareDrop(i) : undefined}
+                on:dragenter={_isInteractive ? () => squareDragEnter(i) : undefined}
+                on:dragleave={_isInteractive ? () => squareDragLeave(i) : undefined}
+                on:click={_isInteractive ? () => squareClick(i) : undefined}
             >
                 <!-- Piece -->
                 {#if isPiece(value)}
@@ -154,7 +164,7 @@
                         width: {_boardWidth / 8}px; height: {_boardHeight / 8}px"
                         use:draggable={{ enabled: _isInteractive, tag: id }}
                         on:dragstart={_isInteractive ? (e) => pieceDragStart(e, i) : undefined}
-                        on:click={_isInteractive ? (e) => pieceClick(i) : undefined}
+                        on:click={_isInteractive ? (e) => pieceClick(e, i) : undefined}
                     />
                 {/if}
             </div>
