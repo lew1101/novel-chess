@@ -20,7 +20,6 @@ export function draggable(el: HTMLElement, tag: string) {
 export function dropzone(el: HTMLElement, tag: string) {
     function handleDragOver(e: DragEvent) {
         e.preventDefault();
-
         e.dataTransfer.dropEffect = "move";
     }
 

@@ -58,14 +58,13 @@
     let _boardHeight: number;
     let _flipped: boolean = false;
     let _showingHints: boolean = false;
+    let _draggedOverSquare: number = null;
 
     let _ds: {
         from: number;
-        to: number;
         dragging: boolean;
     } = {
         from: null,
-        to: null,
         dragging: false,
     };
 
@@ -79,25 +78,35 @@
     // INTERNAL HANDLERS
     // ==========================
 
-    const handleDragStart = (e: DragEvent, sq) => {
+    const pieceDragStart = (e: DragEvent, sq) => {
         _ds.from = sq;
         _ds.dragging = true;
     };
-    const handleDragEnter = (sq) => {
-        $boardState[sq].isHighlighted = true;
-    };
-    const handleDragLeave = (sq) => {
-        $boardState[sq].isHighlighted = false;
+    const squareDragEnter = (sq) => {
+        _draggedOverSquare = sq;
     };
 
-    const handleDrop = (e: DragEvent, sq) => {
-        _ds.to = sq;
-        if (_ds.from !== _ds.to && verifyMoveCallback(_ds.from, _ds.to)) {
-            moveFromTo(_ds.from, _ds.to);
+    const squareDrop = (sq) => {
+        if (_ds.from !== sq && verifyMoveCallback(_ds.from, sq)) {
+            moveFromTo(_ds.from, sq);
             clearHighlight();
-        } else {
+
+            _ds.from = null;
+            _draggedOverSquare = null;
         }
+
         _ds.dragging = false;
+    };
+
+    const squareClick = (sq) => {
+        if (_ds.from) squareDrop(sq);
+    };
+
+    const pieceClick = (sq) => {
+        if (!_ds.from) {
+            _ds.from = sq;
+            $boardState[sq].isHighlighted = true;
+        }
     };
 
     // ==========================
@@ -127,12 +136,13 @@
             <!-- Square -->
             <div
                 class="chess-square {(~~(i / 8) + (i % 8)) % 2 ? 'light-square' : 'dark-square'}"
-                class:dragover-square={isHighlighted}
+                class:dragover-square={_draggedOverSquare === i}
+                class:highlight-square={isHighlighted}
                 data-index={i}
                 use:dropzone={id}
-                on:drop={(e) => handleDrop(e, i)}
-                on:dragenter={(e) => handleDragEnter(i)}
-                on:dragleave={(e) => handleDragLeave(i)}
+                on:drop={(e) => squareDrop(i)}
+                on:dragenter={(e) => squareDragEnter(i)}
+                on:click={(e) => squareClick(i)}
             >
                 <!-- Piece -->
                 {#if isPiece(value)}
@@ -142,7 +152,8 @@
                         style="background-image: url({PIECE_SVG[value]}); 
                         width: {_boardWidth / 8}px; height: {_boardHeight / 8}px"
                         use:draggable={id}
-                        on:dragstart={(e) => handleDragStart(e, i)}
+                        on:dragstart={(e) => pieceDragStart(e, i)}
+                        on:click={(e) => pieceClick(i)}
                     />
                 {/if}
             </div>
