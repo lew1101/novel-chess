@@ -1,11 +1,11 @@
 <script lang="ts">
     import * as constants from "$lib/engine/constants";
+    import { draggable, dropzone } from "$lib/dragging";
     import { writable, Writable } from "svelte/store";
-    import { beforeUpdate } from "svelte";
     import { isPiece } from "$lib/engine/utils";
 
     // ==========================
-    //  EXPOSED MEMBERS
+    // EXPOSED MEMBERS
     // ==========================
 
     // CONST
@@ -27,61 +27,78 @@
     export const MODES = ["INTERACTIVE", "VIEW"];
 
     // EXPOSED PROPS
+    export let id: string;
     export let width: number = 800;
     export let height: number = 800;
     export let debug: boolean = false;
     export let mode: string = "INTERACTIVE";
     export let showNotation: boolean = true;
     export let showHints: boolean = true;
+    export let verifyMoveCallback: (from: number, to: number) => boolean = () => true;
 
     // EXPOSED METHODS
     export const flip = () => (_flipped = !_flipped);
+    export const clearHighlight = () =>
+        boardState.set(
+            $boardState.map((s) => {
+                s.isHighlighted = false;
+                return s;
+            })
+        );
 
     // ==========================
     //  INTERNAL MEMBERS
     // ==========================
-
     // INTERNAL STATE
+    const boardState: Writable<{ value: Chess.ValidSquare; isHighlighted: boolean }[]> = writable(
+        [...new Array(64)].map(() => ({ value: constants.EMPTY, isHighlighted: false }))
+    );
     let _boardRef: HTMLElement; // reference to chessboard itself
     let _boardWidth: number; // bound to clientWidth of board
     let _boardHeight: number;
     let _flipped: boolean = false;
     let _showingHints: boolean = false;
 
-    const boardState: Writable<{ value: Chess.ValidSquare; isHighlighted: boolean }[]> = writable(
-        [...new Array(64)].map(() => ({ value: constants.EMPTY, isHighlighted: false }))
-    );
+    let _ds: {
+        from: number;
+        to: number;
+        dragging: boolean;
+    } = {
+        from: null,
+        to: null,
+        dragging: false,
+    };
 
-    function getSquareElement(s: number) {
-        return _boardRef.children[s];
-    }
+    // INTERNAL METHODS
+    const moveFromTo = (from: number, to: number) => {
+        $boardState[to].value = $boardState[from].value;
+        $boardState[from].value = constants.EMPTY;
+    };
 
     // ==========================
     // INTERNAL HANDLERS
     // ==========================
 
-    function handleDragStart(e: DragEvent, sq) {
-        e.dataTransfer.setData("text", sq);
-        e.dataTransfer.dropEffect = "move";
-        e.dataTransfer.effectAllowed = "move";
-    }
-    function handleDragEnter(sq) {
+    const handleDragStart = (e: DragEvent, sq) => {
+        _ds.from = sq;
+        _ds.dragging = true;
+    };
+    const handleDragEnter = (sq) => {
         $boardState[sq].isHighlighted = true;
-    }
-    function handleDragLeave(sq) {
+    };
+    const handleDragLeave = (sq) => {
         $boardState[sq].isHighlighted = false;
-    }
+    };
 
-    function handleDragOver(e: DragEvent) {
-        e.dataTransfer.dropEffect = "move";
-    }
-
-    function handleDrop(e: DragEvent, finalSquare) {
-        const initialSquare = parseInt(e.dataTransfer.getData("text"));
-        $boardState[finalSquare].isHighlighted = false;
-        $boardState[finalSquare].value = $boardState[initialSquare].value;
-        $boardState[initialSquare].value = constants.EMPTY;
-    }
+    const handleDrop = (e: DragEvent, sq) => {
+        _ds.to = sq;
+        if (_ds.from !== _ds.to && verifyMoveCallback(_ds.from, _ds.to)) {
+            moveFromTo(_ds.from, _ds.to);
+            clearHighlight();
+        } else {
+        }
+        _ds.dragging = false;
+    };
 
     // ==========================
 
@@ -94,8 +111,7 @@
                 return s;
             })
         );
-
-        $: console.log($boardState.map((s) => s.value));
+        console.log($boardState.map((s) => s.value));
     }
 </script>
 
@@ -113,8 +129,8 @@
                 class="chess-square {(~~(i / 8) + (i % 8)) % 2 ? 'light-square' : 'dark-square'}"
                 class:dragover-square={isHighlighted}
                 data-index={i}
-                on:drop|preventDefault|stopPropagation={(e) => handleDrop(e, i)}
-                on:dragover|preventDefault={(e) => handleDragOver(e)}
+                use:dropzone={id}
+                on:drop={(e) => handleDrop(e, i)}
                 on:dragenter={(e) => handleDragEnter(i)}
                 on:dragleave={(e) => handleDragLeave(i)}
             >
@@ -125,7 +141,7 @@
                         alt={value}
                         style="background-image: url({PIECE_SVG[value]}); 
                         width: {_boardWidth / 8}px; height: {_boardHeight / 8}px"
-                        draggable={true}
+                        use:draggable={id}
                         on:dragstart={(e) => handleDragStart(e, i)}
                     />
                 {/if}
@@ -199,14 +215,12 @@
     }
 
     .chess-square.dragover-square {
-        outline: 10px solid white;
+        outline: 10px solid white; /* what a hack */
         outline-offset: -10px;
     }
 
     .notation-item {
         list-style: none;
-        /* width: 1em;
-        height: 1em; */
         font-size: 1em;
         font-weight: bold;
         font-family: "Roboto", sans-serif;
