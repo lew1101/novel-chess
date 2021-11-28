@@ -39,15 +39,15 @@
     export let verifyMoveCallback: (from: number, to: number) => boolean = () => true;
 
     // EXPOSED METHODS
-    export const clearHighlight = () => squareIsHighlighted.set(new Array(64).fill(false));
+    export const clearHighlight = () => _squareIsHighlighted.set(new Array(64).fill(false));
 
     // ==========================
     //  INTERNAL MEMBERS
     // ==========================
     // INTERNAL STATE
-    const squareIsHighlighted: Writable<boolean[]> = writable(new Array(64).fill(false));
+    const _squareIsHighlighted: Writable<boolean[]> = writable(new Array(64).fill(false));
 
-    const boardState = derived([store, squareIsHighlighted], ([$store, $squareIsHighlighted]) => {
+    const _boardState = derived([store, _squareIsHighlighted], ([$store, $squareIsHighlighted]) => {
         let combinedState = [];
         for (let i = 0; i < 64; i++) {
             combinedState[i] = {
@@ -87,7 +87,7 @@
     const pieceDragStart = (sq) => {
         _ds.from = sq;
         _ds.dragging = true;
-        $squareIsHighlighted[sq] = true;
+        $_squareIsHighlighted[sq] = true;
     };
 
     const squareDragEnter = (sq) => {
@@ -118,7 +118,7 @@
         e.stopPropagation();
         if (!_ds.from) {
             _ds.from = sq;
-            $squareIsHighlighted[sq] = true;
+            $_squareIsHighlighted[sq] = true;
         }
     };
 
@@ -133,7 +133,7 @@
         bind:clientWidth={_boardWidth}
         bind:offsetHeight={_boardHeight}
     >
-        {#each flipped ? $boardState.reverse() : $boardState as { value, isHighlighted }, i}
+        {#each flipped ? $_boardState.reverse() : $_boardState as { value, isHighlighted }, i}
             <!-- Square -->
             <div
                 class="chess-square {(~~(i / 8) + (i % 8)) % 2 ? 'light-square' : 'dark-square'}"
