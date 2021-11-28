@@ -1,7 +1,7 @@
 <script lang="ts">
     import * as constants from "$lib/engine/constants";
     import { draggable, dropzone } from "$lib/dragging";
-    import { writable, Writable } from "svelte/store";
+    import { writable, derived, Writable, Readable } from "svelte/store";
     import { isPiece } from "$lib/engine/utils";
 
     // ==========================
@@ -22,14 +22,16 @@
         [constants.BLACK_BISHOP]: "/assets/chess-pieces/chess_bB45.svg",
         [constants.BLACK_KNIGHT]: "/assets/chess-pieces/chess_bN45.svg",
         [constants.BLACK_PAWN]: "/assets/chess-pieces/chess_bP45.svg",
-    } as const;
+    };
 
     export const MODES = ["INTERACTIVE", "VIEW"] as const;
 
     // EXPOSED PROPS
     export let id: string;
+    export let store: Writable<Chess.ChessBoard>;
     export let width: number = 800;
     export let height: number = 800;
+    export let flipped: boolean = false;
     export let debug: boolean = false;
     export let mode: typeof MODES[number] = "INTERACTIVE";
     export let showNotation: boolean = true;
@@ -37,26 +39,28 @@
     export let verifyMoveCallback: (from: number, to: number) => boolean = () => true;
 
     // EXPOSED METHODS
-    export const flip = () => (_flipped = !_flipped);
-    export const clearHighlight = () =>
-        boardState.set(
-            $boardState.map((s) => {
-                s.isHighlighted = false;
-                return s;
-            })
-        );
+    export const clearHighlight = () => squareIsHighlighted.set(new Array(64).fill(false));
 
     // ==========================
     //  INTERNAL MEMBERS
     // ==========================
     // INTERNAL STATE
-    const boardState: Writable<{ value: Chess.ValidSquare; isHighlighted: boolean }[]> = writable(
-        [...new Array(64)].map(() => ({ value: constants.EMPTY, isHighlighted: false }))
-    );
+    const squareIsHighlighted: Writable<boolean[]> = writable(new Array(64).fill(false));
+
+    const boardState = derived([store, squareIsHighlighted], ([$store, $squareIsHighlighted]) => {
+        let combinedState = [];
+        for (let i = 0; i < 64; i++) {
+            combinedState[i] = {
+                value: $store[constants.MAILBOX64[i]],
+                isHighlighted: $squareIsHighlighted[i],
+            };
+        }
+        return combinedState;
+    });
+
     let _boardRef: HTMLElement; // reference to chessboard itself
     let _boardWidth: number; // bound to clientWidth of board
     let _boardHeight: number;
-    let _flipped: boolean = false;
     let _isInteractive: boolean = mode === "INTERACTIVE";
     let _showingHints: boolean = false;
     let _draggedOverSquare: number = null;
@@ -71,8 +75,8 @@
 
     // INTERNAL METHODS
     const moveFromTo = (from: number, to: number) => {
-        $boardState[to].value = $boardState[from].value;
-        $boardState[from].value = constants.EMPTY;
+        $store[constants.MAILBOX64[to]] = $store[constants.MAILBOX64[from]];
+        $store[constants.MAILBOX64[from]] = constants.EMPTY;
     };
 
     // ==========================
@@ -80,10 +84,12 @@
     // ==========================
     // IT WORKS, ITS MAGIC, DO NOT TOUCH
     // DRAGGING
-    const pieceDragStart = (e: DragEvent, sq) => {
+    const pieceDragStart = (sq) => {
         _ds.from = sq;
         _ds.dragging = true;
+        $squareIsHighlighted[sq] = true;
     };
+
     const squareDragEnter = (sq) => {
         _draggedOverSquare = sq;
     };
@@ -93,17 +99,13 @@
     };
 
     const squareDrop = (sq) => {
-        console.log("bruh");
         if (_ds.from !== sq && verifyMoveCallback(_ds.from, sq)) {
             moveFromTo(_ds.from, sq);
-
             _ds.from = null;
-            _draggedOverSquare = null;
-        } else {
-            $boardState[sq].isHighlighted = true;
         }
 
         clearHighlight();
+        _draggedOverSquare = null;
         _ds.dragging = false;
     };
 
@@ -116,22 +118,11 @@
         e.stopPropagation();
         if (!_ds.from) {
             _ds.from = sq;
-            $boardState[sq].isHighlighted = true;
+            $squareIsHighlighted[sq] = true;
         }
     };
 
     // ==========================
-
-    // DEBUG
-    if (debug) {
-        boardState.set(
-            $boardState.map((s, i) => {
-                s.value = constants.STARTING_POS[constants.MAILBOX64[i]];
-                return s;
-            })
-        );
-        console.log($boardState.map((s) => s.value));
-    }
 </script>
 
 <div {id} class="chessboard-wrapper" style="width: {width}px; height: {height}px">
@@ -142,7 +133,7 @@
         bind:clientWidth={_boardWidth}
         bind:offsetHeight={_boardHeight}
     >
-        {#each _flipped ? $boardState.reverse() : $boardState as { value, isHighlighted }, i}
+        {#each flipped ? $boardState.reverse() : $boardState as { value, isHighlighted }, i}
             <!-- Square -->
             <div
                 class="chess-square {(~~(i / 8) + (i % 8)) % 2 ? 'light-square' : 'dark-square'}"
@@ -163,7 +154,7 @@
                         style="background-image: url({PIECE_SVG[value]}); 
                         width: {_boardWidth / 8}px; height: {_boardHeight / 8}px"
                         use:draggable={{ enabled: _isInteractive, tag: id }}
-                        on:dragstart={_isInteractive ? (e) => pieceDragStart(e, i) : undefined}
+                        on:dragstart={_isInteractive ? () => pieceDragStart(i) : undefined}
                         on:click={_isInteractive ? (e) => pieceClick(e, i) : undefined}
                     />
                 {/if}
