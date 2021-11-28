@@ -22,16 +22,16 @@
         [constants.BLACK_BISHOP]: "/assets/chess-pieces/chess_bB45.svg",
         [constants.BLACK_KNIGHT]: "/assets/chess-pieces/chess_bN45.svg",
         [constants.BLACK_PAWN]: "/assets/chess-pieces/chess_bP45.svg",
-    };
+    } as const;
 
-    export const MODES = ["INTERACTIVE", "VIEW"];
+    export const MODES = ["INTERACTIVE", "VIEW"] as const;
 
     // EXPOSED PROPS
     export let id: string;
     export let width: number = 800;
     export let height: number = 800;
     export let debug: boolean = false;
-    export let mode: string = "INTERACTIVE";
+    export let mode: typeof MODES[number] = "INTERACTIVE";
     export let showNotation: boolean = true;
     export let showHints: boolean = true;
     export let verifyMoveCallback: (from: number, to: number) => boolean = () => true;
@@ -57,6 +57,7 @@
     let _boardWidth: number; // bound to clientWidth of board
     let _boardHeight: number;
     let _flipped: boolean = false;
+    let _isInteractive: boolean = mode === "INTERACTIVE";
     let _showingHints: boolean = false;
     let _draggedOverSquare: number = null;
 
@@ -77,7 +78,7 @@
     // ==========================
     // INTERNAL HANDLERS
     // ==========================
-
+    // IT WORKS, ITS MAGIC, DO NOT TOUCH
     const pieceDragStart = (e: DragEvent, sq) => {
         _ds.from = sq;
         _ds.dragging = true;
@@ -139,10 +140,10 @@
                 class:dragover-square={_draggedOverSquare === i}
                 class:highlight-square={isHighlighted}
                 data-index={i}
-                use:dropzone={id}
-                on:drop={(e) => squareDrop(i)}
-                on:dragenter={(e) => squareDragEnter(i)}
-                on:click={(e) => squareClick(i)}
+                use:dropzone={{ enabled: _isInteractive, tag: id }}
+                on:drop={_isInteractive ? (e) => squareDrop(i) : undefined}
+                on:dragenter={_isInteractive ? (e) => squareDragEnter(i) : undefined}
+                on:click={_isInteractive ? (e) => squareClick(i) : undefined}
             >
                 <!-- Piece -->
                 {#if isPiece(value)}
@@ -151,9 +152,9 @@
                         alt={value}
                         style="background-image: url({PIECE_SVG[value]}); 
                         width: {_boardWidth / 8}px; height: {_boardHeight / 8}px"
-                        use:draggable={id}
-                        on:dragstart={(e) => pieceDragStart(e, i)}
-                        on:click={(e) => pieceClick(i)}
+                        use:draggable={{ enabled: _isInteractive, tag: id }}
+                        on:dragstart={_isInteractive ? (e) => pieceDragStart(e, i) : undefined}
+                        on:click={_isInteractive ? (e) => pieceClick(i) : undefined}
                     />
                 {/if}
             </div>
@@ -203,7 +204,6 @@
         background-size: contain;
         cursor: grab;
     }
-
     .chess-square {
         user-select: none;
         box-sizing: border-box;

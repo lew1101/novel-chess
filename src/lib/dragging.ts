@@ -1,8 +1,10 @@
-export function draggable(el: HTMLElement, tag: string) {
+export function draggable(el: HTMLElement, props: { enabled: boolean; tag: string }) {
+    if (!props.enabled) return;
+
     el.draggable = true;
 
     function handleDragStart(e: DragEvent) {
-        e.dataTransfer.setData("text", tag);
+        e.dataTransfer.setData("text", props.tag);
         e.dataTransfer.dropEffect = "move";
         e.dataTransfer.effectAllowed = "move";
     }
@@ -17,7 +19,9 @@ export function draggable(el: HTMLElement, tag: string) {
     };
 }
 
-export function dropzone(el: HTMLElement, tag: string) {
+export function dropzone(el: HTMLElement, props: { enabled: boolean; tag: string }) {
+    if (!props.enabled) return;
+
     function handleDragOver(e: DragEvent) {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
@@ -26,7 +30,7 @@ export function dropzone(el: HTMLElement, tag: string) {
     function handleDrop(e: DragEvent) {
         e.preventDefault();
 
-        if (e.dataTransfer.getData("text") !== tag) {
+        if (e.dataTransfer.getData("text") !== props.tag) {
             e.stopImmediatePropagation();
         }
     }
