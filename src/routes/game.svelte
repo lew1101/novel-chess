@@ -4,4 +4,4 @@
     import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 </script>
 
-<ChessBoard width={800} height={800} interactive={true} showNotation={true} />
+<ChessBoard debug={true} width={800} height={800} />

@@ -8,7 +8,9 @@ namespace Chess {
     type Piece = BlackPiece | WhitePiece;
 
     type EmptySquare = ".";
+
+    type ValidSquare = Piece | EmptySquare | InvalidSquare;
     type InvalidSquare = -1;
 
-    type ChessBoard = (Piece | EmptySquare | InvalidSquare)[];
+    type ChessBoard = ValidSquare[];
 }
