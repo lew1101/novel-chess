@@ -1,4 +1,8 @@
 namespace Chess {
+    type White = "w";
+    type Black = "b";
+    type Player = White | Black;
+
     type File = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h";
     type Rank = "8" | "7" | "6" | "5" | "4" | "3" | "2" | "1";
     type Notation = File & Rank;
@@ -9,8 +13,9 @@ namespace Chess {
 
     type EmptySquare = ".";
 
-    type ValidSquare = Piece | EmptySquare | InvalidSquare;
+    type ValidSquare = Piece | EmptySquare;
     type InvalidSquare = -1;
 
     type ChessBoard = ValidSquare[];
+    type MailBox = (ValidSquare | InvalidSquare)[];
 }

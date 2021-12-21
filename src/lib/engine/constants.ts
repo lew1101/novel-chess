@@ -4,6 +4,9 @@ export const FILES: Chess.File[] = ["a", "b", "c", "d", "e", "f", "g", "h"];
 export const EMPTY: Chess.EmptySquare = ".";
 export const INVALID_SQUARE: Chess.InvalidSquare = -1;
 
+export const WHITE: Chess.White = "w";
+export const BLACK: Chess.Black = "b";
+
 export const WHITE_KING: Chess.WhitePiece = "K";
 export const WHITE_QUEEN: Chess.WhitePiece = "Q";
 export const WHITE_ROOK: Chess.WhitePiece = "R";
@@ -36,43 +39,33 @@ export const BLACK_PIECES: Chess.BlackPiece[] = [
 ];
 export const PIECES: Chess.Piece[] = [...WHITE_PIECES, ...BLACK_PIECES];
 
-export const TYPICAL_MOVE = 0;
-export const CASTLE_MOVE = 1;
-export const PROMOTION_MOVE = 2;
-export const ENPASSANT_MOVE = 3;
-
-export const MOVE_TYPES = [TYPICAL_MOVE, CASTLE_MOVE, PROMOTION_MOVE, ENPASSANT_MOVE];
+export const A8 = 21;
+export const H8 = 28;
+export const A1 = 91;
+export const H1 = 98;
 
 //prettier-ignore
 export const STARTING_POS: Chess.ChessBoard = [
-    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
-    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
-    -1, "r", "n", "b", "q", "k", "b", "n", "r",  -1,
-    -1, "p", "p", "p", "p", "p", "p", "p", "p",  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1, 
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1, 
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1, 
-    -1, "P", "P", "P", "P", "P", "P", "P", "P",  -1,
-    -1, "R", "N", "B", "Q", "K", "B", "N", "R",  -1,
-    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
-    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, 
+    "r", "n", "b", "q", "k", "b", "n", "r",  
+    "p", "p", "p", "p", "p", "p", "p", "p",  
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    ".", ".", ".", ".", ".", ".", ".", ".", 
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    "P", "P", "P", "P", "P", "P", "P", "P",  
+    "R", "N", "B", "Q", "K", "B", "N", "R",  
 ];
 
 // prettier-ignore
 export const EMPTY_BOARD: Chess.ChessBoard = [
-    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
-    -1, ".", ".", ".", ".", ".", ".", ".", ".",  -1,
-    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    ".", ".", ".", ".", ".", ".", ".", ".",  
+    ".", ".", ".", ".", ".", ".", ".", ".",  
 ];
 
 // prettier-ignore
@@ -114,3 +107,19 @@ export const squareToCoords = [
     "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 ]
+
+export const PIECE_UNICODE = {
+    [EMPTY]: ".",
+    [WHITE_KING]: "♚",
+    [WHITE_QUEEN]: "♛",
+    [WHITE_ROOK]: "♜",
+    [WHITE_BISHOP]: "♝",
+    [WHITE_KNIGHT]: "♞",
+    [WHITE_PAWN]: "♟",
+    [BLACK_KING]: "♔",
+    [BLACK_QUEEN]: "♕",
+    [BLACK_ROOK]: "♖",
+    [BLACK_BISHOP]: "♗",
+    [BLACK_KNIGHT]: "♘",
+    [BLACK_PAWN]: "♙",
+};

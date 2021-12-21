@@ -1,9 +1,18 @@
 <script lang="ts">
-    import * as constants from "$lib/engine/constants";
+    import ChessBoard from "@components/chess/ChessBoard.svelte";
+    import { STARTING_POS } from "@lib/engine/constants";
+    import { ChessPosition } from "@lib/engine/position";
     import { writable } from "svelte/store";
-    import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 
-    const chessStore = writable([...constants.STARTING_POS]);
+    let chessBoard;
+    let position = new ChessPosition(STARTING_POS);
 </script>
 
-<ChessBoard id="bruh" debug={true} width={800} height={800} store={chessStore} />
+<ChessBoard
+    bind:this={chessBoard}
+    mode="INTERACTIVE"
+    position={writable(position)}
+    showNotation={true}
+    debug={true}
+    --notation-font-size="16px"
+/>
