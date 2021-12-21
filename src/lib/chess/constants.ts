@@ -97,7 +97,7 @@ export const MAILBOX64 = [
 ]
 
 // prettier-ignore
-export const squareToCoords = [
+export const SQUARE_TO_COORDS = [
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
     "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
     "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
@@ -108,7 +108,7 @@ export const squareToCoords = [
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 ]
 
-export const PIECE_UNICODE = {
+export const PIECE_TO_UNICODE_REPR = {
     [EMPTY]: ".",
     [WHITE_KING]: "♚",
     [WHITE_QUEEN]: "♛",

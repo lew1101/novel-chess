@@ -1,9 +1,8 @@
 <script lang="ts">
-    import { setContext } from "svelte";
     import ChessBoard from "./subcomponents/board.svelte";
     import { RANKS, FILES } from "@lib/engine/constants";
 
-    import { ChessPosition, ChessPositionInstance } from "@lib/engine/position";
+    import { ChessPosition, ChessPositionInstance } from "@lib/chess/position";
     import { writable, Writable } from "svelte/store";
 
     /**
@@ -40,7 +39,7 @@
     if (debug) {
         position.subscribe(() => {
             console.log("Position Updated");
-            $position.printPosition();
+            $position.print();
         });
     }
 </script>

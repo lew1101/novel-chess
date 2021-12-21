@@ -1,5 +1,5 @@
-import { EMPTY_BOARD, WHITE, PIECE_UNICODE } from "./constants";
-import * as constants from "@lib/engine/constants";
+import { EMPTY_BOARD, WHITE, PIECE_TO_UNICODE_REPR } from "./constants";
+import * as constants from "./constants";
 
 export type ChessPositionInstance = InstanceType<typeof ChessPosition>;
 export class ChessPosition {
@@ -26,6 +26,18 @@ export class ChessPosition {
         this.fullmoveNumber = fullmoveNumber;
     }
 
+    // ====================================
+    // NUCLEAR METHODS
+    // ====================================
+
+    move(initial: number, final: number) {
+        // DOES NOT DO VALIDITY CHECKS
+        const ret = this.copy();
+        ret.board[final] = ret.board[initial];
+        ret.board[initial] = constants.EMPTY;
+        return ret;
+    }
+
     copy() {
         return new ChessPosition(
             [...this.board],
@@ -37,23 +49,22 @@ export class ChessPosition {
         );
     }
 
-    genMovesForSquare(s: number) {}
+    // ====================================
+    // NON-NUCLEAR METHODS
+    // ====================================
 
-    move(initial: number, final: number) {
-        const ret = this.copy();
-        ret.board[final] = ret.board[initial];
-        ret.board[initial] = constants.EMPTY;
-        return ret;
+    genMove(sq: number) {
+        let pseudoLegal = new Array();
     }
 
-    printPosition() {
+    print() {
         let output = "",
             rank = 8;
         for (let i = 0; i < 8; i++) {
             output += rank + " ";
             rank--;
             for (let j = 0; j < 8; j++) {
-                output += PIECE_UNICODE[this.board[i * 8 + j]] + " ";
+                output += PIECE_TO_UNICODE_REPR[this.board[i * 8 + j]] + " ";
             }
             output += "\n";
         }

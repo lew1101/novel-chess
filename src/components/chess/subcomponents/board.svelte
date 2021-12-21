@@ -35,7 +35,7 @@
     function handleMoveEnd(e: CustomEvent): void {
         _dragFinal = getSquareFromXY(e.detail.mouseX, e.detail.mouseY);
 
-        if (_dragFinal === null) {
+        if (_dragFinal === null || _dragInitial === _dragFinal) {
             e.detail.reject();
             return;
         }

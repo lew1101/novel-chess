@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as constants from "@lib/engine/constants";
+    import * as constants from "@lib/chess/constants";
     import dragging from "@lib/actions/dragging/dragging";
 
     export let width: number;

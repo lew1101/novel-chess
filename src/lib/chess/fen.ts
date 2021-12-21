@@ -1,4 +1,8 @@
-function parseFen(fen: string) {
+import { EMPTY, MAILBOX64, SQUARE_TO_COORDS } from "./constants";
+import { isPiece } from "./utils";
+import { ChessPosition } from "./position";
+
+export function parseFen(fen: string) {
     const segments = fen.split(" ");
 
     // 1. Piece Placement
@@ -12,19 +16,19 @@ function parseFen(fen: string) {
         for (let char of file.split("")) {
             // + bitwise operator converts it into number
             let jmp = +char; // NaN if not number
-            if (jmp === NaN && utils.isPiece(char)) {
+            if (jmp === NaN && isPiece(char)) {
                 position[i + j] = char;
                 j++;
             } else if (jmp <= 8) {
                 // big brain time
                 for (; j < j + jmp; j++) {
-                    position[i + j] = constants.EMPTY;
+                    position[i + j] = EMPTY;
                 }
             } else {
                 throw new Error("Invalid token in piece placement segment in fen provided");
             }
         }
-        if (j < 8) throw new Error("Invalid piece placement segment in fen provided");
+        if (j !== 8) throw new Error("Invalid piece placement segment in fen provided");
     }
 
     // 2. Turn
@@ -45,9 +49,9 @@ function parseFen(fen: string) {
     }
 
     // 4. Enpassant
-    if (!constants.squareToCoords.includes(segments[3]))
+    if (!SQUARE_TO_COORDS.includes(segments[3]))
         throw new Error("Invalid token in enpassant segment in fen provided");
-    const enpassant: number = constants.MAILBOX64[constants.squareToCoords.indexOf(segments[3])];
+    const enpassant: number = MAILBOX64[SQUARE_TO_COORDS.indexOf(segments[3])];
 
     // 5. Halfmove Clock
     const halfmoveClock: number = parseInt(segments[4]);
@@ -58,4 +62,13 @@ function parseFen(fen: string) {
     const fullmoveNumber: number = parseInt(segments[5]);
     if (String(fullmoveNumber) !== segments[5] || fullmoveNumber >= 1)
         throw new Error("Invalid token in fullmove clock segment in fen provided");
+
+    return new ChessPosition(
+        position,
+        turn,
+        castlingRights,
+        enpassant,
+        halfmoveClock,
+        fullmoveNumber
+    );
 }
