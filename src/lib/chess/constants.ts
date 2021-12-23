@@ -154,7 +154,7 @@ export const RANKS = ["1", "2", "3", "4", "5", "6", "7", "8"];
 export const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 //prettier-ignore
-export const STARTING_POS = [
+export const STARTING_POS: ChessBoard120 = [
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, 24, 22, 23, 25, 26, 23, 22, 24, -1, 
@@ -170,7 +170,7 @@ export const STARTING_POS = [
 ];
 
 // prettier-ignore
-export const EMPTY_BOARD = [
+export const EMPTY_BOARD: ChessBoard120 = [
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1,  0,  0,  0,  0,  0,  0,  0,  0, -1, 

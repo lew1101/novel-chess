@@ -1,6 +1,29 @@
-import { EMPTY, EMPTY_BOARD, Color } from "./constants";
+import { EMPTY, EMPTY_BOARD, Color, PieceType } from "./constants";
 import type { ChessBoard120 } from "./constants";
 import { getPieceColor, getPieceType } from "./utils";
+
+const N = -10;
+const E = 1;
+const S = 10;
+const W = -1;
+
+const PIECE_DIRECTION_MAP = {
+    [PieceType.KING]: [N, N + E, E, S + E, S, S + W, W, N + W],
+    [PieceType.QUEEN]: [N, N + E, E, S + E, S, S + W, W, N + W],
+    [PieceType.ROOK]: [N, E, S, W],
+    [PieceType.BISHOP]: [N + E, S + E, S + W, N + W],
+    [PieceType.KNIGHT]: [
+        N + N + E,
+        E + E + N,
+        E + E + S,
+        S + S + E,
+        S + S + W,
+        W + W + S,
+        W + W + N,
+        N + N + W,
+    ],
+    [PieceType.PAWN]: [N, N + N, N + E, N + W],
+};
 
 export type ChessPositionInstance = InstanceType<typeof ChessPosition>;
 export default class ChessPosition {
@@ -54,8 +77,8 @@ export default class ChessPosition {
         const moves = [];
 
         const val = this.board[sq];
-        const pieceType = getPieceType(val);
-        const pieceColor = getPieceColor(val);
+        const type = getPieceType(val);
+        const color = getPieceColor(val);
 
         return moves;
     }
