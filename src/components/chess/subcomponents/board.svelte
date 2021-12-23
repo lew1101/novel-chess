@@ -64,6 +64,7 @@
                     type={square}
                     width={_squareWidth}
                     height={_squareHeight}
+                    draggable={mode === "INTERACTIVE"}
                     on:move-start={handleMoveStart}
                     on:move-end={handleMoveEnd}
                 />

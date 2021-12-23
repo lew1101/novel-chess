@@ -4,6 +4,7 @@
 
     export let width: number;
     export let height: number;
+    export let draggable: boolean;
     export let type: Piece;
 
     export const PIECE_URLS = {
@@ -26,7 +27,7 @@
     class="chess-piece"
     style="background-image: url({PIECE_URLS[type]}); 
     width: {width}px; height: {height}px"
-    use:dragging={{ debug: true }}
+    use:dragging={{ useAction: draggable, debug: true }}
     on:move-start
     on:move-end
 />
@@ -39,6 +40,5 @@
         user-select: none;
         background-repeat: no-repeat;
         background-size: contain;
-        cursor: grab;
     }
 </style>

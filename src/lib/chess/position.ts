@@ -45,4 +45,18 @@ export default class ChessPosition {
             this.fullmoveNumber
         );
     }
+
+    isValidMove(initial: number, final: number): boolean {
+        return this.genMoves(initial).includes(final);
+    }
+
+    genMoves(sq: number): number[] {
+        const moves = [];
+
+        const val = this.board[sq];
+        const pieceType = getPieceType(val);
+        const pieceColor = getPieceColor(val);
+
+        return moves;
+    }
 }

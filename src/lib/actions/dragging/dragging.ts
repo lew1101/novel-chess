@@ -1,5 +1,12 @@
 export type DraggingType = ReturnType<typeof dragging>;
-export default function dragging(el: HTMLElement, { payload = "", debug = false }) {
+export default function dragging(
+    el: HTMLElement,
+    { useAction = false, payload = "", debug = false }
+) {
+    if (!useAction) return;
+
+    el.style.cursor = "grab";
+
     let temp: HTMLElement = null;
 
     function handleStart(e: MouseEvent) {
@@ -12,6 +19,7 @@ export default function dragging(el: HTMLElement, { payload = "", debug = false 
 
         temp.style.position = "absolute";
         temp.style.zIndex = "1000";
+        temp.style.cursor = "grabbing";
         temp.style.left = e.pageX - temp.offsetWidth / 2 + "px";
         temp.style.top = e.pageY - temp.offsetHeight / 2 + "px";
         document.body.appendChild(temp);
