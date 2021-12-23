@@ -1,8 +1,9 @@
 <script lang="ts">
     import ChessBoard from "./subcomponents/board.svelte";
-    import { RANKS, FILES } from "@lib/engine/constants";
+    import { RANKS, FILES } from "@lib/chess/constants";
+    import { printBoard } from "@lib/chess/utils";
 
-    import { ChessPosition, ChessPositionInstance } from "@lib/chess/position";
+    import ChessPosition, { ChessPositionInstance } from "@lib/chess/position";
     import { writable, Writable } from "svelte/store";
 
     /**
@@ -29,7 +30,7 @@
      * @param [--board-height] - not recommended
      */
 
-    export let mode: ChessBoard.ViewMode = "INTERACTIVE";
+    export let mode: ViewMode = "INTERACTIVE";
     export let position: Writable<ChessPositionInstance> = writable(new ChessPosition());
     export let flipped: boolean = false;
     export let showNotation: boolean = false;
@@ -39,7 +40,7 @@
     if (debug) {
         position.subscribe(() => {
             console.log("Position Updated");
-            $position.print();
+            printBoard($position.board);
         });
     }
 </script>

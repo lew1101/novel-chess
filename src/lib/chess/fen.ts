@@ -1,6 +1,6 @@
-import { EMPTY, MAILBOX64, SQUARE_TO_COORDS } from "./constants";
-import { isPiece } from "./utils";
-import { ChessPosition } from "./position";
+import { EMPTY, MAILBOX64, SQUARE_TO_COORDS, CHAR_AS_COLOR } from "./constants";
+import { isPiece, getBoard64AsMailbox } from "./utils";
+import ChessPosition from "./position";
 
 export function parseFen(fen: string) {
     const segments = fen.split(" ");
@@ -64,8 +64,8 @@ export function parseFen(fen: string) {
         throw new Error("Invalid token in fullmove clock segment in fen provided");
 
     return new ChessPosition(
-        position,
-        turn,
+        getBoard64AsMailbox(position),
+        CHAR_AS_COLOR[turn],
         castlingRights,
         enpassant,
         halfmoveClock,

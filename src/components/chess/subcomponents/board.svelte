@@ -2,13 +2,14 @@
     import ChessSquare from "./square.svelte";
     import ChessPiece from "./piece.svelte";
     import { getOffsetRect } from "@utils/bounding";
-    import { isPiece } from "@lib/engine/utils";
+    import { MAILBOX64 } from "@lib/chess/constants";
+    import { isPiece, getMailboxAsBoard64 } from "@lib/chess/utils";
 
-    import type { ChessPositionInstance } from "@lib/engine/position";
+    import type { ChessPositionInstance } from "@lib/chess/position";
     import type { Writable } from "svelte/store";
 
     export let position: Writable<ChessPositionInstance>;
-    export let mode: ChessBoard.ViewMode;
+    export let mode: ViewMode;
     export let flipped: boolean;
     export let showNotation: boolean;
     export let showHints: boolean;
@@ -20,10 +21,11 @@
     $: _squareHeight = _height / 8;
 
     function getSquareFromXY(x: number, y: number) {
-        const boardRect = getOffsetRect(_boardRef);
+        const boardRect = getOffsetRect(_boardRef); // math time
         const r = ~~(((y - boardRect.y) / boardRect.height) * 8);
         const f = ~~(((x - boardRect.x) / boardRect.width) * 8);
-        return r >= 0 && r <= 7 && f >= 0 && f <= 7 ? r * 8 + f : null;
+        // rank and file in range ? return square in mailbox form : return null
+        return r >= 0 && r <= 7 && f >= 0 && f <= 7 ? MAILBOX64[r * 8 + f] : null;
     }
 
     let _dragInitial: number = null;
@@ -49,7 +51,7 @@
     bind:clientWidth={_width}
     bind:clientHeight={_height}
 >
-    {#each flipped ? $position.board.reverse() : $position.board as square, i}
+    {#each getMailboxAsBoard64(flipped ? $position.board.reverse() : $position.board) as square, i}
         <ChessSquare
             width={_squareWidth}
             height={_squareHeight}

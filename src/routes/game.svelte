@@ -1,7 +1,7 @@
 <script lang="ts">
     import ChessBoard from "@components/chess/ChessBoard.svelte";
+    import ChessPosition from "@lib/chess/position";
     import { STARTING_POS } from "@lib/chess/constants";
-    import { ChessPosition } from "@lib/chess/position";
     import { writable } from "svelte/store";
 
     let chessBoard;

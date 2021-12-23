@@ -1,3 +1,1 @@
-declare namespace ChessBoard {
-    type ViewMode = "INTERACTIVE" | "VIEW";
-}
+declare type ViewMode = "INTERACTIVE" | "VIEW";
