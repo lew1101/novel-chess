@@ -23,11 +23,11 @@
     import { getOffsetRect } from '@utils/bounding';
     import type { ViewMode } from '../ChessBoard.svelte';
 
-    import { derived, Readable, writable } from 'svelte/store';
+    import { writable } from 'svelte/store';
     import type { Writable } from 'svelte/store';
 
     import Chess, { Color } from '@lib/chess/chess';
-    import type { ChessInstance, ChessBoard120, Move, Moves } from '@lib/chess/chess';
+    import type { ChessInstance, ChessBoard120, Moves } from '@lib/chess/chess';
 
     // ===============================================
 
@@ -177,7 +177,6 @@
             hasHighlight={_validMoveSquares.includes(constants.MAILBOX64[i])}
             hasBorder={false}
         >
-            <span style="color: black; float: left;">{constants.MAILBOX64[i]}</span>
             {#if utils.isPiece(square)}
                 <ChessPiece
                     type={square}
