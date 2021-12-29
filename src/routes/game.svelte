@@ -1,18 +1,17 @@
 <script lang="ts">
-    import ChessBoard from "@components/chess/ChessBoard.svelte";
-    import ChessPosition from "@lib/chess/position";
-    import { STARTING_POS } from "@lib/chess/constants";
-    import { writable } from "svelte/store";
+    import ChessBoard from '@components/chess/ChessBoard.svelte';
+    import { STARTING_FEN } from '@lib/chess/chess';
 
     let chessBoard;
-    let position = new ChessPosition(STARTING_POS);
+    let fen = '8/3P4/8/8/8/8/4p3/8 w KQkq - 0 1';
+    // let fen = STARTING_FEN;
 </script>
 
 <ChessBoard
     bind:this={chessBoard}
     mode="INTERACTIVE"
-    position={writable(position)}
+    {fen}
     showNotation={true}
     debug={true}
-    --notation-font-size="16px"
+    --font-size="18px"
 />

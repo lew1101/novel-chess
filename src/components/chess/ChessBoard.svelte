@@ -1,15 +1,15 @@
-<script lang="ts">
-    import ChessBoard from "./subcomponents/board.svelte";
-    import { RANKS, FILES } from "@lib/chess/constants";
-    import { printBoard } from "@lib/chess/utils";
+<script context="module" lang="ts">
+    export type ViewMode = 'INTERACTIVE' | 'VIEW';
+</script>
 
-    import ChessPosition, { ChessPositionInstance } from "@lib/chess/position";
-    import { writable, Writable } from "svelte/store";
+<script lang="ts">
+    import ChessBoard from './subcomponents/board.svelte';
+    import { STARTING_FEN, RANKS, FILES } from '@lib/chess/chess';
 
     /**
      * Parameters
-     * @param {ChessBoard.ViewMode} [mode="INTERACTIVE"] = view mode
-     * @param {Writable<ChessPositionInstance>} [position=writable(new ChessPosition())] - writable that reflects board state
+     * @param {ViewMode} [mode="INTERACTIVE"] -  view mode
+     * @param {Writable<ChessBoard120>} [position=writable(new Array())] - writable that reflects board state
      * @param {boolean} [flipped=false] - whether board is flipped
      * @param {boolean} [showNotation=false] - whether notation should be shown
      * @param {boolean} [showHints=true] - whether board should show hints
@@ -30,23 +30,16 @@
      * @param [--board-height] - not recommended
      */
 
-    export let mode: ViewMode = "INTERACTIVE";
-    export let position: Writable<ChessPositionInstance> = writable(new ChessPosition());
+    export let mode: ViewMode = 'INTERACTIVE';
+    export let fen: string = STARTING_FEN;
     export let flipped: boolean = false;
     export let showNotation: boolean = false;
     export let showHints: boolean = true;
     export let debug: boolean = false;
-
-    if (debug) {
-        position.subscribe(() => {
-            console.log("Position Updated");
-            printBoard($position.board);
-        });
-    }
 </script>
 
 <div class="chessboard-wrapper">
-    <ChessBoard {position} {mode} {flipped} {showNotation} {showHints} />
+    <ChessBoard {fen} {debug} {mode} {flipped} {showNotation} {showHints} />
     {#if showNotation}
         <div class="rank-notation" style="font-size: 10px">
             {#each RANKS as rank}
@@ -66,19 +59,20 @@
         width: var(--wrapper-width, 800px);
         height: var(--wrapper-height, 800px);
 
+        position: relative;
         display: grid;
         grid-template-columns: 5% 1fr;
         grid-template-rows: 1fr 5%;
         grid-template-areas:
-            "rank-notation chessboard"
-            ". file-notation";
+            'rank-notation chessboard'
+            '. file-notation';
         grid-gap: 0.5em;
     }
     .notation-item {
         list-style: none;
-        font-size: var(--notation-font-size, 1em);
+        font-size: var(--font-size, 1em);
         font-weight: bold;
-        font-family: "Roboto", sans-serif;
+        font-family: 'Roboto', sans-serif;
         color: #989795;
     }
     .rank-notation {

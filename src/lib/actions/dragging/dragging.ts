@@ -1,11 +1,10 @@
-export type DraggingType = ReturnType<typeof dragging>;
 export default function dragging(
     el: HTMLElement,
-    { useAction = false, payload = "", debug = false }
+    { useAction = false, payload = '', debug = false }
 ) {
     if (!useAction) return;
 
-    el.style.cursor = "grab";
+    el.style.cursor = 'grab';
 
     let temp: HTMLElement = null;
 
@@ -15,20 +14,20 @@ export default function dragging(
         if (e.button !== 0) return; // make sure click is left click
 
         temp = <HTMLElement>el.cloneNode();
-        el.style.visibility = "hidden";
+        el.style.visibility = 'hidden';
 
-        temp.style.position = "absolute";
-        temp.style.zIndex = "1000";
-        temp.style.cursor = "grabbing";
-        temp.style.left = e.pageX - temp.offsetWidth / 2 + "px";
-        temp.style.top = e.pageY - temp.offsetHeight / 2 + "px";
+        temp.style.position = 'absolute';
+        temp.style.zIndex = '1000';
+        temp.style.cursor = 'grabbing';
+        temp.style.left = e.pageX - temp.offsetWidth / 2 + 'px';
+        temp.style.top = e.pageY - temp.offsetHeight / 2 + 'px';
         document.body.appendChild(temp);
 
-        document.addEventListener("mousemove", handleMove, true);
-        document.addEventListener("mouseup", handleEnd, true);
+        document.addEventListener('mousemove', handleMove, true);
+        document.addEventListener('mouseup', handleEnd, true);
 
         el.dispatchEvent(
-            new CustomEvent("move-start", {
+            new CustomEvent('move-start', {
                 detail: {
                     payload,
                     mouseX: e.pageX,
@@ -46,8 +45,8 @@ export default function dragging(
         e.stopPropagation();
         e.preventDefault();
 
-        temp.style.left = e.pageX - temp.offsetWidth / 2 + "px";
-        temp.style.top = e.pageY - temp.offsetHeight / 2 + "px";
+        temp.style.left = e.pageX - temp.offsetWidth / 2 + 'px';
+        temp.style.top = e.pageY - temp.offsetHeight / 2 + 'px';
     }
 
     function handleEnd(e: MouseEvent) {
@@ -57,11 +56,11 @@ export default function dragging(
         temp.remove();
         temp = null;
 
-        document.removeEventListener("mousemove", handleMove, true);
-        document.removeEventListener("mouseup", handleEnd, true);
+        document.removeEventListener('mousemove', handleMove, true);
+        document.removeEventListener('mouseup', handleEnd, true);
 
         el.dispatchEvent(
-            new CustomEvent("move-end", {
+            new CustomEvent('move-end', {
                 detail: {
                     payload,
                     mouseX: e.pageX,
@@ -71,7 +70,7 @@ export default function dragging(
                         return el;
                     },
                     reject() {
-                        el.style.visibility = "visible";
+                        el.style.visibility = 'visible';
                     },
                 },
             })
@@ -82,14 +81,14 @@ export default function dragging(
         }
     }
 
-    el.addEventListener("mousedown", handleStart, true);
+    el.addEventListener('mousedown', handleStart, true);
 
     return {
         node: el,
         destroy() {
-            el.removeEventListener("mousedown", handleStart, true);
-            document.removeEventListener("mousemove", handleMove, true);
-            document.removeEventListener("mouseup", handleEnd, true);
+            el.removeEventListener('mousedown', handleStart, true);
+            document.removeEventListener('mousemove', handleMove, true);
+            document.removeEventListener('mouseup', handleEnd, true);
         },
     };
 }
