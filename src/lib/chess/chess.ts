@@ -113,7 +113,7 @@ export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 // LOCAL CONSTANTS
 // ==========================
 
-const SYMBOL_AS_CHAR = {
+export const SYMBOL_AS_CHAR = {
     [INVALID_SQUARE]: 'x',
     [EMPTY]: '.',
 
@@ -132,7 +132,7 @@ const SYMBOL_AS_CHAR = {
     [Piece.BLACK_PAWN]: 'p',
 };
 
-const CHAR_AS_SYMBOL = {
+export const CHAR_AS_SYMBOL = {
     x: INVALID_SQUARE,
     '.': EMPTY,
 
@@ -151,28 +151,28 @@ const CHAR_AS_SYMBOL = {
     p: Piece.BLACK_PAWN,
 };
 
-const COLOR_AS_CHAR = {
+export const COLOR_AS_CHAR = {
     [Color.WHITE]: 'w',
     [Color.BLACK]: 'b',
 };
 
-const CHAR_AS_COLOR = {
+export const CHAR_AS_COLOR = {
     w: Color.WHITE,
     b: Color.BLACK,
 };
 
-const N = -10;
-const E = 1;
-const S = 10;
-const W = -1;
+export const N = -10;
+export const E = 1;
+export const S = 10;
+export const W = -1;
 
-const PAWN_OFFSETS = {
+export const PAWN_OFFSETS = {
     [Color.WHITE]: [N, N + N, N + E, N + W],
     [Color.BLACK]: [S, S + S, S + E, S + W],
 };
 
 // prettier-ignore
-const PIECE_OFFSETS = {
+export const PIECE_OFFSETS = {
     [PieceType.KING]: [N, N + E, E, S + E, S, S + W, W, N + W],
     [PieceType.QUEEN]: [N, N + E, E, S + E, S, S + W, W, N + W],
     [PieceType.ROOK]: [N, E, S, W],
@@ -180,12 +180,12 @@ const PIECE_OFFSETS = {
     [PieceType.KNIGHT]: [N + N + E, E + E + N, E + E + S, S + S + E, S + S + W, W + W + S, W + W + N, N + N + W],
 }
 
-const CASTLE_SQUARES = {
+export const CASTLE_SQUARES = {
     [Color.WHITE]: [97, 93],
     [Color.BLACK]: [27, 23],
 };
 
-const PIECE_AS_UNICODE_REPR = {
+export const PIECE_AS_UNICODE_REPR = {
     [EMPTY]: '.',
     [Piece.WHITE_KING]: '♚',
     [Piece.WHITE_QUEEN]: '♛',
@@ -201,7 +201,7 @@ const PIECE_AS_UNICODE_REPR = {
     [Piece.BLACK_PAWN]: '♙',
 };
 // prettier-ignore
-const RANK_FROM_SQUARE = [
+export const RANK_FROM_SQUARE = [
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1,  8,  8,  8,  8,  8,  8,  8,  8, -1,
@@ -217,7 +217,7 @@ const RANK_FROM_SQUARE = [
 ];
 
 // prettier-ignore
-const FILE_FROM_SQUARE = [
+export const FILE_FROM_SQUARE = [
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1,  1,  2,  3,  4,  5,  6,  7,  8, -1,
@@ -232,7 +232,7 @@ const FILE_FROM_SQUARE = [
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 ];
 // prettier-ignore
-const MAILBOX120 = [
+export const MAILBOX120 = [
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1,  0,  1,  2,  3,  4,  5,  6,  7, -1,
@@ -248,7 +248,7 @@ const MAILBOX120 = [
 ];
 
 // prettier-ignore
-const MAILBOX64 = [
+export const MAILBOX64 = [
     21, 22, 23, 24, 25, 26, 27, 28,
     31, 32, 33, 34, 35, 36, 37, 38,
     41, 42, 43, 44, 45, 46, 47, 48,
@@ -260,7 +260,7 @@ const MAILBOX64 = [
 ]
 
 // prettier-ignore
-const ALGEBRAIC = [
+export const ALGEBRAIC = [
     'a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8',
     'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7',
     'a6', 'b6', 'c6', 'd6', 'e6', 'f6', 'g6', 'h6',
@@ -976,25 +976,6 @@ export default function Chess(fen?: string) {
     // ==========================
 
     return {
-        constants: {
-            STARTING_FEN,
-            EMPTY_FEN,
-            EMPTY,
-            INVALID_SQUARE,
-            Flag,
-            Color,
-            Piece,
-            WhitePiece,
-            BlackPiece,
-            SYMBOL_AS_CHAR,
-            CHAR_AS_SYMBOL,
-            COLOR_AS_CHAR,
-            CHAR_AS_COLOR,
-            RANKS,
-            FILES,
-            MAILBOX120,
-            MAILBOX64,
-        },
         utils: {
             boardAsUnicode: unicode,
             printBoard: () => console.log(unicode(_board)),

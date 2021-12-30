@@ -1,9 +1,8 @@
 <script lang="ts">
     import dragging from '@lib/actions/dragging/dragging';
-    import type { Piece } from '@lib/chess/chess';
 
     export let draggable: boolean;
-    export let type: Piece;
+    export let type: number;
     export let pieceImageUrls: { [key: number]: any };
 </script>
 

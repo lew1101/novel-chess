@@ -1,7 +1,6 @@
 <script lang="ts" context="module">
     import { PieceType } from '@lib/chess/chess';
-
-    export const promotionPieceTypes = [
+    const promotionPieceTypes = [
         PieceType.QUEEN,
         PieceType.KNIGHT,
         PieceType.ROOK,
@@ -11,10 +10,9 @@
 
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import type { Color } from '@lib/chess/chess';
 
     export let file: number;
-    export let pieceColor: Color;
+    export let pieceColor: number;
     export let reversed: boolean;
     export let pieceImageUrls: { [key: number]: any };
 

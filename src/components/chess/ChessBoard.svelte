@@ -4,7 +4,33 @@
 
 <script lang="ts">
     import ChessBoard from './subcomponents/board.svelte';
-    import { STARTING_FEN, RANKS, FILES } from '@lib/chess/chess';
+    import ChessPromotionBar from './subcomponents/promotionBar.svelte';
+    import { writable } from 'svelte/store';
+    import { getOffsetRect } from '@lib/utils/bounding';
+    import Chess, {
+        STARTING_FEN,
+        RANKS,
+        FILES,
+        Color,
+        Piece,
+        Moves,
+        ChessBoard120,
+    } from '@lib/chess/chess';
+
+    const PIECE_IMAGE_URLS = {
+        [Piece.WHITE_KING]: '/assets/chess-pieces/chess_wK45.svg',
+        [Piece.WHITE_QUEEN]: '/assets/chess-pieces/chess_wQ45.svg',
+        [Piece.WHITE_ROOK]: '/assets/chess-pieces/chess_wR45.svg',
+        [Piece.WHITE_BISHOP]: '/assets/chess-pieces/chess_wB45.svg',
+        [Piece.WHITE_KNIGHT]: '/assets/chess-pieces/chess_wN45.svg',
+        [Piece.WHITE_PAWN]: '/assets/chess-pieces/chess_wP45.svg',
+        [Piece.BLACK_KING]: '/assets/chess-pieces/chess_bK45.svg',
+        [Piece.BLACK_QUEEN]: '/assets/chess-pieces/chess_bQ45.svg',
+        [Piece.BLACK_ROOK]: '/assets/chess-pieces/chess_bR45.svg',
+        [Piece.BLACK_BISHOP]: '/assets/chess-pieces/chess_bB45.svg',
+        [Piece.BLACK_KNIGHT]: '/assets/chess-pieces/chess_bN45.svg',
+        [Piece.BLACK_PAWN]: '/assets/chess-pieces/chess_bP45.svg',
+    };
 
     export let mode: ViewMode = 'INTERACTIVE';
     export let fen: string = STARTING_FEN;
@@ -12,10 +38,133 @@
     export let showNotation: boolean = true;
     export let showHints: boolean = true;
     export let debug: boolean = false;
+
+    const chess = Chess();
+    chess.load(fen);
+    const position = writable(chess.board);
+
+    // ===============================================
+
+    function updatePosition() {
+        $position = chess.board;
+    }
+
+    // ===============================================
+
+    let _from: number = null;
+    let _to: number = null;
+    let _dragColor: Color = null;
+    let _movesObj: Moves = null;
+    let _validMoveSquares: number[] = [];
+    // brace yourself for the monster below
+
+    let _showPromotionBar: boolean = false;
+    let _promotionBarState: {
+        reversed: boolean;
+        file: number;
+        pieceColor: Color;
+    };
+
+    function clearMembers() {
+        _from = null;
+        _to = null;
+        _dragColor = null;
+        _movesObj = null;
+        _validMoveSquares = [];
+        _showPromotionBar = false;
+        _promotionBarState = null;
+    }
+
+    // ===============================================
+    // DRAGGING HANDLERS
+    // ===============================================
+
+    function handlePieceMoveStart(e: CustomEvent): void {
+        _from = e.detail.square;
+        _dragColor = chess.utils.getPieceColor($position[_from]);
+
+        if (_dragColor === chess.turn) {
+            _movesObj = chess.getMovesForSquare(_from);
+            _validMoveSquares = _movesObj?.moves.map((move) => move.to) || [];
+        } else {
+            _movesObj = null;
+            _validMoveSquares = [];
+        }
+    }
+
+    function handlePieceMoveEnd(e: CustomEvent): void {
+        _to = e.detail.square;
+        const moveIndex = _validMoveSquares.indexOf(_to);
+
+        if (_movesObj?.isPromotion) {
+            e.detail.reject();
+            return showPromotionBar();
+        }
+        if (_dragColor === chess.turn && moveIndex !== -1) {
+            let move = _movesObj?.moves[moveIndex];
+            if (move) chess.executeMove(move);
+            updatePosition();
+        } else e.detail.reject();
+
+        clearMembers();
+    }
+
+    // ===============================================
+    // PROMOTION HANDLERS
+    // ===============================================
+
+    function showPromotionBar() {
+        _promotionBarState = {
+            reversed: _dragColor === Color.BLACK,
+            file: chess.utils.file(_movesObj.square),
+            pieceColor: _dragColor,
+        };
+        _showPromotionBar = true;
+    }
+
+    function handlePromotion(e: CustomEvent) {
+        const promotionTarget = +e.detail.pieceType; // convert to number
+        if (promotionTarget !== null) {
+            const promotionMove = _movesObj?.moves.find(
+                (move) => move.promoteTo === promotionTarget
+            );
+            if (promotionMove) chess.executeMove(promotionMove);
+            updatePosition();
+        }
+
+        clearMembers();
+    }
+
+    const printBoard = (board: ChessBoard120) => console.log(chess.utils.boardAsUnicode(board));
+
+    if (debug) {
+        position.subscribe(() => {
+            console.log('Position Updated');
+            printBoard($position);
+        });
+    }
 </script>
 
 <div class="chessboard-container">
-    <ChessBoard {mode} {fen} {flipped} {showNotation} {showHints} {debug} />
+    <ChessBoard
+        {chess}
+        {position}
+        {mode}
+        {flipped}
+        highlightedSquares={showHints ? _validMoveSquares : []}
+        pieceImageUrls={PIECE_IMAGE_URLS}
+        on:piece-move-start={handlePieceMoveStart}
+        on:piece-move-end={handlePieceMoveEnd}
+    />
+    {#if _showPromotionBar}
+        <ChessPromotionBar
+            file={_promotionBarState.file}
+            reversed={_promotionBarState.reversed}
+            pieceColor={_promotionBarState.pieceColor}
+            pieceImageUrls={PIECE_IMAGE_URLS}
+            on:promotion-select={handlePromotion}
+        />
+    {/if}
     {#if showNotation}
         <div class="rank-notation" style="font-size: 10px">
             {#each RANKS as rank}
