@@ -46,12 +46,7 @@
     chess.load(fen);
 
     let position: Writable<ChessBoard120> = writable(chess.board);
-
     let _boardRef;
-    let _width: number;
-    let _height: number;
-    $: _squareWidth = _width / 8;
-    $: _squareHeight = _height / 8;
 
     // ===============================================
 
@@ -163,25 +158,16 @@
     }
 </script>
 
-<div
-    class="chess-board"
-    bind:this={_boardRef}
-    bind:clientWidth={_width}
-    bind:clientHeight={_height}
->
+<div class="chess-board" bind:this={_boardRef}>
     {#each utils.getMailboxAsBoard64(flipped ? $position.reverse() : $position) as square, i}
         <ChessSquare
-            width={_squareWidth}
-            height={_squareHeight}
             isDarkSquare={!Boolean((~~(i / 8) + (i % 8)) % 2)}
-            hasHighlight={_validMoveSquares.includes(constants.MAILBOX64[i])}
+            hasHighlight={showHints && _validMoveSquares.includes(constants.MAILBOX64[i])}
             hasBorder={false}
         >
             {#if utils.isPiece(square)}
                 <ChessPiece
                     type={square}
-                    width={_squareWidth}
-                    height={_squareHeight}
                     draggable={mode === 'INTERACTIVE'}
                     pieceImageUrls={PIECE_IMAGE_URLS}
                     on:move-start={handleMoveStart}
@@ -194,8 +180,6 @@
 
 {#if _showPromotionBar}
     <ChessPromotionBar
-        pieceWidth={_squareWidth}
-        pieceHeight={_squareHeight}
         file={_promotionBarConfig.file}
         reversed={_promotionBarConfig.reversed}
         pieceColor={_promotionBarConfig.pieceColor}
@@ -206,8 +190,8 @@
 
 <style>
     .chess-board {
-        width: var(--board-width);
-        height: var(--board-height);
+        width: var(--board-width, 800px);
+        height: var(--board-height, 800px);
 
         display: inline-grid;
         grid-template-columns: repeat(8, 1fr);

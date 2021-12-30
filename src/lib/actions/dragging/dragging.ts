@@ -13,14 +13,18 @@ export default function dragging(
         e.preventDefault();
         if (e.button !== 0) return; // make sure click is left click
 
+        const rect = el.getBoundingClientRect();
+
         temp = <HTMLElement>el.cloneNode();
         el.style.visibility = 'hidden';
 
+        temp.style.width = rect.width + 'px';
+        temp.style.height = rect.height + 'px';
         temp.style.position = 'absolute';
         temp.style.zIndex = '1000';
         temp.style.cursor = 'grabbing';
-        temp.style.left = e.pageX - temp.offsetWidth / 2 + 'px';
-        temp.style.top = e.pageY - temp.offsetHeight / 2 + 'px';
+        temp.style.left = e.pageX - rect.width / 2 + 'px';
+        temp.style.top = e.pageY - rect.height / 2 + 'px';
         document.body.appendChild(temp);
 
         document.addEventListener('mousemove', handleMove, true);
