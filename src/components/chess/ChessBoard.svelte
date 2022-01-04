@@ -3,10 +3,10 @@
 </script>
 
 <script lang="ts">
+    import { assets } from '$app/paths';
     import ChessBoard from './subcomponents/board.svelte';
     import ChessPromotionBar from './subcomponents/promotionBar.svelte';
     import { writable } from 'svelte/store';
-    import { getOffsetRect } from '@lib/utils/bounding';
     import Chess, {
         STARTING_FEN,
         RANKS,
@@ -18,18 +18,18 @@
     } from '@lib/chess/chess';
 
     const PIECE_IMAGE_URLS = {
-        [Piece.WHITE_KING]: '/assets/chess-pieces/chess_wK45.svg',
-        [Piece.WHITE_QUEEN]: '/assets/chess-pieces/chess_wQ45.svg',
-        [Piece.WHITE_ROOK]: '/assets/chess-pieces/chess_wR45.svg',
-        [Piece.WHITE_BISHOP]: '/assets/chess-pieces/chess_wB45.svg',
-        [Piece.WHITE_KNIGHT]: '/assets/chess-pieces/chess_wN45.svg',
-        [Piece.WHITE_PAWN]: '/assets/chess-pieces/chess_wP45.svg',
-        [Piece.BLACK_KING]: '/assets/chess-pieces/chess_bK45.svg',
-        [Piece.BLACK_QUEEN]: '/assets/chess-pieces/chess_bQ45.svg',
-        [Piece.BLACK_ROOK]: '/assets/chess-pieces/chess_bR45.svg',
-        [Piece.BLACK_BISHOP]: '/assets/chess-pieces/chess_bB45.svg',
-        [Piece.BLACK_KNIGHT]: '/assets/chess-pieces/chess_bN45.svg',
-        [Piece.BLACK_PAWN]: '/assets/chess-pieces/chess_bP45.svg',
+        [Piece.WHITE_KING]: assets + '/assets/chess-pieces/chess_wK45.svg',
+        [Piece.WHITE_QUEEN]: assets + '/assets/chess-pieces/chess_wQ45.svg',
+        [Piece.WHITE_ROOK]: assets + '/assets/chess-pieces/chess_wR45.svg',
+        [Piece.WHITE_BISHOP]: assets + '/assets/chess-pieces/chess_wB45.svg',
+        [Piece.WHITE_KNIGHT]: assets + '/assets/chess-pieces/chess_wN45.svg',
+        [Piece.WHITE_PAWN]: assets + '/assets/chess-pieces/chess_wP45.svg',
+        [Piece.BLACK_KING]: assets + '/assets/chess-pieces/chess_bK45.svg',
+        [Piece.BLACK_QUEEN]: assets + '/assets/chess-pieces/chess_bQ45.svg',
+        [Piece.BLACK_ROOK]: assets + '/assets/chess-pieces/chess_bR45.svg',
+        [Piece.BLACK_BISHOP]: assets + '/assets/chess-pieces/chess_bB45.svg',
+        [Piece.BLACK_KNIGHT]: assets + '/assets/chess-pieces/chess_bN45.svg',
+        [Piece.BLACK_PAWN]: assets + '/assets/chess-pieces/chess_bP45.svg',
     };
 
     export let mode: ViewMode = 'INTERACTIVE';
@@ -181,8 +181,8 @@
 
 <style>
     .chessboard-container {
-        --board-width: 800px;
-        --board-height: 800px;
+        --board-width: 70vh;
+        --board-height: 70vh;
         --border-radius: 8px;
 
         --square-width: calc(var(--board-width) / 8);
@@ -195,7 +195,7 @@
         --square-outline-color: white;
         --square-outline-width: 10px;
 
-        --notation-font-size: 18px;
+        --notation-font-size: 1rem;
         --notation-width: 30px;
         --notation-color: #989795;
         --notation-gap: 20px;
@@ -211,6 +211,13 @@
             '. file-notation';
         grid-gap: var(--notation-gap);
     }
+
+    @media only screen and (orientation: portrait) {
+        .chessboard-container {
+            --board-width: 70vw;
+            --board-height: 70vw;
+        }
+    }
     .notation-item {
         list-style: none;
 
@@ -221,17 +228,12 @@
     }
     .rank-notation {
         grid-area: rank-notation;
-
-        width: var(--notation-width);
-        height: var(--board-height);
         display: flex;
         flex-direction: column-reverse;
         justify-content: space-around;
         text-align: center;
     }
     .file-notation {
-        width: var(--board-height);
-        height: var(--notation-width);
         grid-area: file-notation;
         display: flex;
         justify-content: space-around;

@@ -68,16 +68,13 @@
 
 <style>
     .chess-board {
-        width: var(--board-width, 800px);
-        height: var(--board-height, 800px);
-
         display: inline-grid;
         grid-template-columns: repeat(8, 1fr);
         grid-template-rows: repeat(8, 1fr);
         gap: 0, 0;
         justify-items: stretch;
         overflow: hidden;
-        border-radius: var(--border-radius, 8px);
+        border-radius: var(--border-radius);
         user-select: none;
     }
 </style>

@@ -2,6 +2,11 @@
     import ChessBoard from '@components/chess/ChessBoard.svelte';
     import { STARTING_FEN } from '@lib/chess/chess';
 
+    export const ssr = false;
+    export const router = false;
+    export const prerender = true;
+    export const hydrate = true;
+
     let fen = STARTING_FEN;
 </script>
 
