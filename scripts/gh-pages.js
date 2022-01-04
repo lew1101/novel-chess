@@ -1,15 +1,17 @@
-import {publish} from 'gh-pages'
+import { publish } from 'gh-pages';
 
-publish({
-    'build': {
+publish(
+    'build',
+    {
         branch: 'gh-pages',
-        repo: "https://github.com/lew1101/novel-chess-demo.git",
+        repo: 'https://github.com/lew1101/novel-chess-demo.git',
         user: {
             name: 'Kenneth Lew',
-            email: 'kennethlew001@gmail.com'
+            email: 'kennethlew001@gmail.com',
         },
         dotfiles: true,
     },
-}, () => {
-    console.log("Deploy to Github Pages Complete")
-})
+    () => {
+        console.log('Deploy to Github Pages Complete');
+    }
+);
