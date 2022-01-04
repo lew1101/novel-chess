@@ -6,10 +6,13 @@
     "build": "svelte-kit build",
     "preview": "svelte-kit preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch"
+    "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
+    "deployGhPage": "node ./scripts/gh-pages.js"
   },
   "devDependencies": {
+    "@sveltejs/adapter-static": "^1.0.0-next.24",
     "@sveltejs/kit": "next",
+    "gh-pages": "^3.2.3",
     "prettier": "^2.5.1",
     "svelte": "^3.42.6",
     "svelte-check": "^2.2.6",
