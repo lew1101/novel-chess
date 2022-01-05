@@ -49,7 +49,7 @@
 <div class="chess-board" bind:this={_boardRef}>
     {#each chess.utils.getMailboxAsBoard64(flipped ? $position.reverse() : $position) as square, i}
         <ChessSquare
-            isDarkSquare={!Boolean((~~(i / 8) + (i % 8)) % 2)}
+            isDarkSquare={Boolean((~~(i / 8) + (i % 8)) % 2)}
             hasHighlight={highlightedSquares.includes(MAILBOX64[i])}
             hasBorder={false}
         >

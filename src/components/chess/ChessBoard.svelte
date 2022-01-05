@@ -4,9 +4,10 @@
 
 <script lang="ts">
     import { assets } from '$app/paths';
+    import { writable } from 'svelte/store';
+    import { createEventDispatcher } from 'svelte';
     import ChessBoard from './subcomponents/board.svelte';
     import ChessPromotionBar from './subcomponents/promotionBar.svelte';
-    import { writable } from 'svelte/store';
     import Chess, {
         STARTING_FEN,
         RANKS,
@@ -14,6 +15,7 @@
         Color,
         Piece,
         Moves,
+        GameEndFlag,
         ChessBoard120,
     } from '@lib/chess/chess';
 
@@ -42,6 +44,7 @@
     const chess = Chess();
     chess.load(fen);
     const position = writable(chess.board);
+    const dispatch = createEventDispatcher();
 
     // ===============================================
 
@@ -102,11 +105,22 @@
         }
         if (_dragColor === chess.turn && moveIndex !== -1) {
             let move = _movesObj?.moves[moveIndex];
-            if (move) chess.executeMove(move);
+            if (move) {
+                chess.executeMove(move);
+                const endFlag = chess.state.getGameEndFlag();
+                if (endFlag !== 0) handleGameEnd(endFlag);
+            }
             updatePosition();
         } else e.detail.reject();
 
         clearMembers();
+    }
+
+    function handleGameEnd(flag: GameEndFlag) {
+        dispatch('gameEnd', {
+            flag,
+            message: chess.state.getGameEndMessage(flag, chess.turn),
+        });
     }
 
     // ===============================================

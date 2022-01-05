@@ -56,6 +56,14 @@ export enum Flag {
     QSIDE_CASTLE = 64,
 }
 
+export enum GameEndFlag {
+    CHECKMATE = 1,
+    STALEMATE = 2,
+    FIFTY_MOVE_RULE = 4,
+    INSUFFICIENT_MATERIAL = 8,
+    THREEFOLD_REPETITION = 16,
+}
+
 export const EMPTY = 0;
 export const INVALID_SQUARE = -1;
 
@@ -795,19 +803,98 @@ export default function Chess(fen?: string) {
         return squareIsAttacked(_kings[color], swapColor(color));
     }
 
-    function inCheckMate(color: Color) {
-        return inCheck(color) && genAllLegalMoves(color).length === 0;
+    function fiftyMoveRule() {
+        return _halfmoveClock >= 50;
     }
 
-    function inStaleMate(color: Color) {
-        return !inCheck(color) && genAllLegalMoves(color).length === 0;
+    function getGameEndFlag(): GameEndFlag | 0 {
+        const moves = genAllLegalMoves(_turn);
+
+        if (inCheckMate(_turn, moves)) return GameEndFlag.CHECKMATE;
+        else if (inStaleMate(_turn, moves)) return GameEndFlag.STALEMATE;
+        else if (fiftyMoveRule()) return GameEndFlag.FIFTY_MOVE_RULE;
+        else if (insufficientMaterial()) return GameEndFlag.INSUFFICIENT_MATERIAL;
+        else if (inThreefoldRepetition()) return GameEndFlag.THREEFOLD_REPETITION;
+        else return 0;
+    }
+
+    function getGameEndMessage(flag: GameEndFlag, turn: Color): { title: string; desc: string } {
+        switch (flag) {
+            case GameEndFlag.CHECKMATE:
+                return {
+                    title: 'Checkmate',
+                    desc: `${turn === Color.WHITE ? 'Black' : 'White'} wins!`,
+                };
+            case GameEndFlag.STALEMATE:
+                return {
+                    title: 'Stalemate',
+                    desc: 'Draw!',
+                };
+            case GameEndFlag.FIFTY_MOVE_RULE:
+                return {
+                    title: 'Fifty Move Rule',
+                    desc: 'Draw!',
+                };
+            case GameEndFlag.INSUFFICIENT_MATERIAL:
+                return {
+                    title: 'Insufficient Material',
+                    desc: 'Draw!',
+                };
+            case GameEndFlag.THREEFOLD_REPETITION:
+                return {
+                    title: 'Threefold Repetition',
+                    desc: `Draw!`,
+                };
+            default:
+                return {
+                    title: '',
+                    desc: '',
+                };
+        }
+    }
+
+    function inCheckMate(color: Color, moves?: Moves[]) {
+        return inCheck(color) && (moves ?? genAllLegalMoves(color)).length === 0;
+    }
+
+    function inStaleMate(color: Color, moves?: Moves[]) {
+        return !inCheck(color) && (moves ?? genAllLegalMoves(color)).length === 0;
+    }
+
+    function insufficientMaterial() {
+        const pieces = {};
+        let bishops = 0; // 1 = blacks square, 0 = white square
+        let piece_count = 0;
+
+        for (const i of MAILBOX64) {
+            const piece = _board[i];
+            if (piece === EMPTY || piece == INVALID_SQUARE) continue;
+            const pieceType = getPieceType(piece);
+
+            pieces[pieceType] = pieceType in pieces ? pieces[pieceType]++ : 1;
+            if (pieceType === PieceType.BISHOP) {
+                bishops += (~~(i / 8) + (i % 8)) % 2;
+            }
+            piece_count++;
+        }
+        // k vs K
+        if (piece_count === 2) return true;
+        // k vs. kn or k vs. kb
+        else if (
+            piece_count === 3 &&
+            (pieces[PieceType.BISHOP] === 1 || pieces[PieceType.KNIGHT] === 1)
+        )
+            return true;
+        // kb vs KB, bishops are on same colored squares
+        else if (piece_count === pieces[PieceType.BISHOP] + 2 && (bishops === 0 || bishops === 2))
+            return true;
+        else return false;
     }
 
     // TODO
-
-    function insufficientMaterial() {}
-
-    function inThreefoldRepetition() {}
+    function inThreefoldRepetition() {
+        return false;
+    }
 
     // ==========================
     // HISTORY
@@ -999,9 +1086,13 @@ export default function Chess(fen?: string) {
             currentPlayerInCheck: () => inCheck(_turn),
             currentPlayerInCheckMate: () => inCheckMate(_turn),
             currentPlayerInStalement: () => inStaleMate(_turn),
+            getGameEndFlag,
+            getGameEndMessage,
             inCheck,
             inCheckMate,
             inStaleMate,
+            insufficientMaterial,
+            inThreefoldRepetition,
         },
         get board() {
             return _board;
