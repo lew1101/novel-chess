@@ -319,11 +319,10 @@ export default function Chess(fen?: string) {
 
     function executeMove(move: Move): void {
         // DOES NOT DO VALIDITY CHECKS
-        let friendly = _turn;
-
-        let pieceType = getPieceType(move.piece);
-
         pushHistory(move);
+
+        let friendly = _turn;
+        let pieceType = getPieceType(move.piece);
 
         _board[move.to] = _board[move.from];
         _board[move.from] = EMPTY;
@@ -351,17 +350,22 @@ export default function Chess(fen?: string) {
         }
 
         // ROOKS WERE MOVED
-        if (_castlingRights[Color.WHITE][0] && _board[98] !== Piece.WHITE_ROOK) {
-            _castlingRights[Color.WHITE][0] = false;
-        }
-        if (_castlingRights[Color.WHITE][1] && _board[91] !== Piece.WHITE_ROOK) {
-            _castlingRights[Color.WHITE][1] = false;
-        }
-        if (_castlingRights[Color.BLACK][0] && _board[28] !== Piece.BLACK_ROOK) {
-            _castlingRights[Color.BLACK][0] = false;
-        }
-        if (_castlingRights[Color.BLACK][1] && _board[21] !== Piece.BLACK_ROOK) {
-            _castlingRights[Color.BLACK][1] = false;
+        if (pieceType === PieceType.ROOK) {
+            if (friendly === Color.WHITE) {
+                if (_castlingRights[Color.WHITE][0] && move.from === 98) {
+                    _castlingRights[Color.WHITE][0] = false;
+                }
+                if (_castlingRights[Color.WHITE][1] && move.from === 91) {
+                    _castlingRights[Color.WHITE][1] = false;
+                }
+            } else {
+                if (_castlingRights[Color.BLACK][0] && move.from === 28) {
+                    _castlingRights[Color.BLACK][0] = false;
+                }
+                if (_castlingRights[Color.BLACK][1] && move.from === 21) {
+                    _castlingRights[Color.BLACK][1] = false;
+                }
+            }
         }
 
         // DOUBLE PAWN MOVE
@@ -448,14 +452,14 @@ export default function Chess(fen?: string) {
         loadFen(EMPTY_FEN);
     }
 
-    // ==========================
     // FEN
+    // ==========================
     // ==========================
     function loadFen(fen: string) {
         const res = validateFen(fen);
-        if (!res.valid) throw new Error(res.error)
+        if (!res.valid) throw new Error(res.error);
 
-        _history = [];
+        _history = []; // clear history
 
         const segments = fen.split(' ');
         if (segments.length !== 6) throw new Error('There are not enought segments in the fen');
@@ -511,13 +515,13 @@ export default function Chess(fen?: string) {
         _turn = CHAR_AS_COLOR[turnAsString];
 
         // 3. Castling
-        if (segments[2] !== '-') {
+        if (segments[2] === '-') {
+            _castlingRights[Color.WHITE] = [false, false];
+            _castlingRights[Color.BLACK] = [false, false];
+        } else {
             const rights = segments[2].split('');
             _castlingRights[Color.WHITE] = [rights.includes('K'), rights.includes('Q')];
             _castlingRights[Color.BLACK] = [rights.includes('k'), rights.includes('q')];
-        } else {
-            _castlingRights[Color.WHITE] = [false, false];
-            _castlingRights[Color.BLACK] = [false, false];
         }
 
         // 4. Enpassant
@@ -591,7 +595,7 @@ export default function Chess(fen?: string) {
                 getPieceColor(_board[square]) === color
             ) {
                 const movesForSquare = genLegalMoves(square);
-                if (movesForSquare.moves.length !== 0) moves.push(movesForSquare);
+                moves.push(movesForSquare);
             }
         }
         return moves;
@@ -814,9 +818,7 @@ export default function Chess(fen?: string) {
         return _halfmoveClock >= 50;
     }
 
-    function getGameEndFlag(): GameEndFlag | 0 {
-        const moves = genAllLegalMoves(_turn);
-
+    function getGameEndFlag(moves: Moves[] = genAllLegalMoves(_turn)): GameEndFlag | 0 {
         if (inCheckMate(_turn, moves)) return GameEndFlag.CHECKMATE;
         else if (inStaleMate(_turn, moves)) return GameEndFlag.STALEMATE;
         else if (fiftyMoveRule()) return GameEndFlag.FIFTY_MOVE_RULE;
@@ -916,8 +918,8 @@ export default function Chess(fen?: string) {
             },
             turn: _turn,
             castlingRights: {
-                [Color.WHITE]: _castlingRights[Color.WHITE],
-                [Color.BLACK]: _castlingRights[Color.BLACK],
+                [Color.WHITE]: [..._castlingRights[Color.WHITE]],
+                [Color.BLACK]: [..._castlingRights[Color.BLACK]],
             },
             enpassant: _enpassant,
             halfmoveClock: _halfmoveClock,
@@ -926,7 +928,7 @@ export default function Chess(fen?: string) {
     }
 
     // ==========================
-    // UTILS
+    // CHESS UTILS
     // ==========================
 
     function getState() {
@@ -1120,6 +1122,7 @@ export default function Chess(fen?: string) {
         reset,
         clear,
         getMoves: genAllLegalMoves,
+        colorCanCastle,
         getPseudoMoves: genAllPeusdoLegalMoves,
         getMovesForSquare: genLegalMoves,
         getPseudoMovesForSquare: genPseudoLegalMoves,

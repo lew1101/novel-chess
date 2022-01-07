@@ -5,7 +5,7 @@
 <script lang="ts">
     import { assets } from '$app/paths';
     import { writable } from 'svelte/store';
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher, onMount } from 'svelte';
     import ChessBoard from './subcomponents/board.svelte';
     import ChessPromotionBar from './subcomponents/promotionBar.svelte';
     import Chess, {
@@ -43,6 +43,9 @@
 
     const chess = Chess();
     chess.load(fen);
+
+    onMount(() => (window['Chess'] = chess)); // expose chess object
+
     const position = writable(chess.board);
     const dispatch = createEventDispatcher();
 
@@ -151,7 +154,7 @@
 
     const printBoard = (board: ChessBoard120) => console.log(chess.utils.boardAsUnicode(board));
 
-    if (debug) {
+    if (!debug) {
         position.subscribe(() => {
             console.log('Position Updated');
             printBoard($position);
