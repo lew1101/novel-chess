@@ -452,7 +452,10 @@ export default function Chess(fen?: string) {
     // FEN
     // ==========================
     function loadFen(fen: string) {
-        clearHistory();
+        const res = validateFen(fen);
+        if (!res.valid) throw new Error(res.error)
+
+        _history = [];
 
         const segments = fen.split(' ');
         if (segments.length !== 6) throw new Error('There are not enought segments in the fen');
@@ -539,9 +542,13 @@ export default function Chess(fen?: string) {
 
     // TODO
 
-    function generateFen() {}
+    function generateFen(): string {
+        return '';
+    }
 
-    function validateFen(fen: string) {}
+    function validateFen(fen: string): { valid: boolean; error?: string } {
+        return { valid: true };
+    }
 
     // ==========================
     // MOVE GENERATION
@@ -892,21 +899,13 @@ export default function Chess(fen?: string) {
     }
 
     // TODO
-    function inThreefoldRepetition() {
+    function inThreefoldRepetition(): boolean {
         return false;
     }
 
     // ==========================
     // HISTORY
     // ==========================
-
-    function getHistory() {
-        return _history;
-    }
-
-    function clearHistory() {
-        _history = [];
-    }
 
     function pushHistory(move: Move): void {
         _history.push({
@@ -924,14 +923,6 @@ export default function Chess(fen?: string) {
             halfmoveClock: _halfmoveClock,
             fullmoveNumber: _fullmoveNumber,
         });
-    }
-
-    function popHistory() {
-        return _history.pop();
-    }
-
-    function historyCount() {
-        return _history.length;
     }
 
     // ==========================
@@ -1009,8 +1000,8 @@ export default function Chess(fen?: string) {
         }
     }
 
-    function unicode(board: ChessBoard120);
-    function unicode(board: ChessBoard64) {
+    function boardAsUnicode(board: ChessBoard120);
+    function boardAsUnicode(board: ChessBoard64) {
         if (board.length === 120) board = getMailboxAsBoard64(board);
         if (board.length !== 64) return new Error('Board passed does not match any overloads.');
         let output = '',
@@ -1027,8 +1018,8 @@ export default function Chess(fen?: string) {
         return output;
     }
 
-    function ascii(board: ChessBoard120);
-    function ascii(board: ChessBoard64) {
+    function boardAsAscii(board: ChessBoard120);
+    function boardAsAscii(board: ChessBoard64) {
         if (board.length === 120) board = getMailboxAsBoard64(board);
         if (board.length !== 64) return new Error('Board passed does not match any overloads.');
         let output = '',
@@ -1064,8 +1055,9 @@ export default function Chess(fen?: string) {
 
     return {
         utils: {
-            boardAsUnicode: unicode,
-            printBoard: () => console.log(unicode(_board)),
+            boardAsUnicode,
+            boardAsAscii,
+            printBoard: () => console.log(boardAsUnicode(_board)),
             rank,
             file,
             getKingSquare,
@@ -1077,10 +1069,19 @@ export default function Chess(fen?: string) {
             getHumanReadableBoard: () => getMailboxAsBoard64(_board).map((x) => SYMBOL_AS_CHAR[x]),
         },
         history: {
-            get: getHistory,
-            clear: clearHistory,
+            get() {
+                return _history;
+            },
+            clear() {
+                _history = [];
+            },
             push: pushHistory,
-            count: historyCount,
+            pop() {
+                return _history.pop();
+            },
+            count() {
+                return _history.length;
+            },
         },
         state: {
             currentPlayerInCheck: () => inCheck(_turn),
