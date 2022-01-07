@@ -1,3 +1,4 @@
+// TODO: add compatability with touch events
 export default function dragging(
     el: HTMLElement,
     { useAction = false, payload = '', debug = false }

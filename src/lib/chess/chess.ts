@@ -871,7 +871,7 @@ export default function Chess(fen?: string) {
             if (piece === EMPTY || piece == INVALID_SQUARE) continue;
             const pieceType = getPieceType(piece);
 
-            pieces[pieceType] = pieceType in pieces ? pieces[pieceType]++ : 1;
+            pieces[pieceType] = pieceType in pieces ? pieces[pieceType] + 1 : 1;
             if (pieceType === PieceType.BISHOP) {
                 bishops += (~~(i / 8) + (i % 8)) % 2;
             }
