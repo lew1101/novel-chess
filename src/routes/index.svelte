@@ -8,8 +8,7 @@
     export const prerender = true;
     export const hydrate = true;
 
-    // let fen = STARTING_FEN;
-    let fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1';
+    let fen = STARTING_FEN;
 
     let showPopUp = false;
     const popUpContent = { title: '', desc: '' };
