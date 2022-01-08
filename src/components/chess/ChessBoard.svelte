@@ -91,7 +91,6 @@
             _movesObj = null;
             _validMoveSquares = [];
         }
-        console.log(_movesObj?.moves);
     }
 
     function handlePieceMoveEnd(e: CustomEvent): void {
