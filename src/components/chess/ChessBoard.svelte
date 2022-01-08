@@ -163,7 +163,7 @@
         {flipped}
         highlightedSquares={showHints ? _validMoveSquares : []}
         pieceImageUrls={PIECE_IMAGE_URLS}
-        on:pienpmce-move-start={handlePieceMoveStart}
+        on:piece-move-start={handlePieceMoveStart}
         on:piece-move-end={handlePieceMoveEnd}
     />
     {#if _showPromotionBar}
