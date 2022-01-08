@@ -92,7 +92,7 @@
 </script>
 
 <div class="centered">
-    <div style="--font-size=18px">
+    <div style="--font-size: 18px">
         <ChessBoard
             bind:this={_boardInstance}
             mode="INTERACTIVE"
