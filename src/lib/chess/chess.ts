@@ -1059,7 +1059,7 @@ export default function Chess(fen?: string) {
         utils: {
             boardAsUnicode,
             boardAsAscii,
-            printBoard: () => console.log(boardAsUnicode(_board)),
+            printBoard: (board: ChessBoard120 | ChessBoard64) => console.log(boardAsUnicode(board)),
             rank,
             file,
             getKingSquare,

@@ -6,6 +6,7 @@
     import { assets } from '$app/paths';
     import { writable } from 'svelte/store';
     import { createEventDispatcher, onMount } from 'svelte';
+
     import ChessBoard from './subcomponents/board.svelte';
     import ChessPromotionBar from './subcomponents/promotionBar.svelte';
     import Chess, {
@@ -16,7 +17,6 @@
         Piece,
         Moves,
         GameEndFlag,
-        ChessBoard120,
     } from '@lib/chess/chess';
 
     const PIECE_IMAGE_URLS = {
@@ -41,19 +41,14 @@
     export let showHints: boolean = true;
     export let debug: boolean = false;
 
-    const chess = Chess();
+    export const chess = Chess();
     chess.load(fen);
 
-    onMount(() => (window['Chess'] = chess)); // expose chess object
+    export const position = writable(chess.board);
+    export const updatePosition = () => ($position = chess.board);
 
-    const position = writable(chess.board);
     const dispatch = createEventDispatcher();
-
-    // ===============================================
-
-    function updatePosition() {
-        $position = chess.board;
-    }
+    onMount(() => (window['Chess'] = chess)); // expose chess object
 
     // ===============================================
 
@@ -152,12 +147,10 @@
         clearMembers();
     }
 
-    const printBoard = (board: ChessBoard120) => console.log(chess.utils.boardAsUnicode(board));
-
-    if (!debug) {
+    if (debug) {
         position.subscribe(() => {
             console.log('Position Updated');
-            printBoard($position);
+            chess.utils.printBoard($position);
         });
     }
 </script>
