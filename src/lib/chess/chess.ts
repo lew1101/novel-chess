@@ -573,9 +573,6 @@ export default function Chess(fen?: string) {
             promoteTo,
         };
 
-        if (promoteTo) {
-            move.flags |= Flag.PROMOTION;
-        }
         if (isPiece(board[to])) {
             move.captured = board[to];
         } else if (flags & Flag.EP_CAPTURE) {
@@ -635,15 +632,31 @@ export default function Chess(fen?: string) {
     }
 
     function genPseudoLegalMoves(sq: number): Moves {
-        const moves: Move[] = [];
-        const addMove = (...args) => moves.push((buildMove as any)(...args));
-
         // reference material: https://github.com/thomasahle/sunfish/blob/master/sunfish.py
+
+        const moves: Move[] = [];
         const piece = _board[sq];
 
         const pieceType = getPieceType(piece);
         const friendly = getPieceColor(piece);
         const enemy = swapColor(friendly);
+
+        const addMove = (board, from, to, flags) => moves.push(buildMove(board, from, to, flags));
+        const addPawnMove = (board, from, to, flags) => {
+            if (rank(to) === (friendly === Color.WHITE ? 8 : 1)) {
+                flags = (flags ^ Flag.NORMAL) | Flag.PROMOTION;
+                isPromotion = true;
+
+                for (const promoteTo of [
+                    PieceType.QUEEN,
+                    PieceType.ROOK,
+                    PieceType.BISHOP,
+                    PieceType.KNIGHT,
+                ]) {
+                    moves.push(buildMove(board, from, to, flags, friendly + promoteTo));
+                }
+            } else addMove(board, from, to, flags);
+        };
 
         // Move Generation
         let targetSq;
@@ -656,18 +669,7 @@ export default function Chess(fen?: string) {
             targetVal = _board[targetSq];
 
             if (targetVal === EMPTY) {
-                if (rank(targetSq) === (friendly === Color.WHITE ? 8 : 1)) {
-                    // PROMOTION!!!!
-                    for (const pieceType of [
-                        PieceType.QUEEN,
-                        PieceType.ROOK,
-                        PieceType.BISHOP,
-                        PieceType.KNIGHT,
-                    ]) {
-                        addMove(_board, sq, targetSq, Flag.PROMOTION, friendly + pieceType);
-                        isPromotion = true;
-                    }
-                } else addMove(_board, sq, targetSq, Flag.NORMAL); // NO PROMOTION, NORMAL MOVE
+                addPawnMove(_board, sq, targetSq, Flag.NORMAL); //  NORMAL MOVE
 
                 // PAWN CAN MOVE TWO MOVES ?
                 targetSq = sq + PAWN_OFFSETS[friendly][1]; // double move
@@ -675,7 +677,7 @@ export default function Chess(fen?: string) {
 
                 if (rank(sq) === (friendly === Color.WHITE ? 2 : 7) && targetVal === EMPTY) {
                     // PAWN CAN ADVANCE TWO MOVES
-                    addMove(_board, sq, targetSq, Flag.DOUBLE_PAWN_MOVE);
+                    addPawnMove(_board, sq, targetSq, Flag.DOUBLE_PAWN_MOVE);
                 }
             }
 
@@ -685,14 +687,14 @@ export default function Chess(fen?: string) {
 
                 if (targetSq === _enpassant) {
                     // ENPASSANT
-                    addMove(_board, sq, targetSq, Flag.EP_CAPTURE);
+                    addPawnMove(_board, sq, targetSq, Flag.EP_CAPTURE);
                 } else if (
                     targetVal !== EMPTY &&
                     targetVal !== INVALID_SQUARE &&
                     getPieceColor(targetVal) === enemy
                 ) {
                     // NORMAL CAPTURE
-                    addMove(_board, sq, targetSq, Flag.CAPTURE);
+                    addPawnMove(_board, sq, targetSq, Flag.CAPTURE);
                 }
             }
         } else {
