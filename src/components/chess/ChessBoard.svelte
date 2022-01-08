@@ -163,7 +163,7 @@
         {flipped}
         highlightedSquares={showHints ? _validMoveSquares : []}
         pieceImageUrls={PIECE_IMAGE_URLS}
-        on:piece-move-start={handlePieceMoveStart}
+        on:pienpmce-move-start={handlePieceMoveStart}
         on:piece-move-end={handlePieceMoveEnd}
     />
     {#if _showPromotionBar}
@@ -205,7 +205,7 @@
         --square-outline-color: white;
         --square-outline-width: 10px;
 
-        --notation-font-size: 1rem;
+        --notation-font-size: 2em;
         --notation-width: 30px;
         --notation-color: #989795;
         --notation-gap: 20px;
@@ -231,7 +231,7 @@
     .notation-item {
         list-style: none;
 
-        font-size: var(--font-size);
+        font-size: var(--notation-font-size);
         font-weight: bold;
         font-family: 'Roboto', sans-serif;
         color: var(--notation-color);

@@ -91,16 +91,15 @@
     }
 </script>
 
-<div class="centered">
-    <div style="--font-size: 18px">
-        <ChessBoard
-            bind:this={_boardInstance}
-            mode="INTERACTIVE"
-            fen={STARTING_FEN}
-            showNotation={true}
-            on:gameEnd={handleGameEnd}
-        />
-    </div>
+<div class="main-content">
+    <ChessBoard
+        bind:this={_boardInstance}
+        mode="INTERACTIVE"
+        fen={STARTING_FEN}
+        showNotation={true}
+        on:gameEnd={handleGameEnd}
+    />
+
     <div>
         <Button on:click={newGame}>New Game</Button>
         <Button on:click={undoMove} disabled={!_canUndo}>Undo</Button>
@@ -116,7 +115,7 @@
 {/if}
 
 <style>
-    .centered {
+    .main-content {
         position: fixed;
         top: 50%;
         left: 50%;
