@@ -595,7 +595,7 @@ export default function Chess(fen?: string) {
                 getPieceColor(_board[square]) === color
             ) {
                 const movesForSquare = genLegalMoves(square);
-                moves.push(movesForSquare);
+                if (movesForSquare.moves.length !== 0) moves.push(movesForSquare);
             }
         }
         return moves;
