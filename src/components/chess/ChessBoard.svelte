@@ -128,7 +128,7 @@
     function showPromotionBar() {
         _promotionBarState = {
             reversed: _dragColor === Color.BLACK,
-            file: chess.utils.file(_movesObj.square),
+            file: chess.utils.file(_to),
             pieceColor: _dragColor,
         };
         _showPromotionBar = true;
@@ -138,7 +138,7 @@
         const promotionTarget = +e.detail.pieceType; // convert to number
         if (promotionTarget !== null) {
             const promotionMove = _movesObj?.moves.find(
-                (move) => move.promoteTo === promotionTarget
+                (move) => move.promoteTo === promotionTarget && move.to === _to
             );
             if (promotionMove) chess.executeMove(promotionMove);
             updatePosition();
