@@ -31,7 +31,7 @@
 
     let _moveByUndoOrRedo: boolean;
 
-    const _updateUndoState = () => {
+    const updateUndoState = () => {
         if (!_moveByUndoOrRedo) {
             _redoMoves = [];
         }
@@ -41,7 +41,7 @@
         _moveByUndoOrRedo = false;
     };
 
-    onMount(() => _boardInstance.position.subscribe(_updateUndoState));
+    onMount(() => _boardInstance.position.subscribe(updateUndoState));
 
     function undoMove(e) {
         if (_canUndo) {
