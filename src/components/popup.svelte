@@ -27,6 +27,7 @@
         background: rgba(0, 0, 0, 0.4);
         cursor: pointer;
         top: 0;
+        left: 0;
         position: fixed;
         text-align: center;
         z-index: 10000;
