@@ -1,5 +1,5 @@
 <script lang="ts">
-    import dragging from '@lib/actions/dragging/dragging';
+    import { mouseDragging } from '@lib/actions/dragging/dragging';
 
     export let draggable: boolean;
     export let type: number;
@@ -9,7 +9,7 @@
 <div
     class="chess-piece"
     style="background-image: url({pieceImageUrls[String(type)]});"
-    use:dragging={{ useAction: draggable }}
+    use:mouseDragging={{ useAction: draggable }}
     on:move-start
     on:move-end
 />

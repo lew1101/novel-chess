@@ -3,6 +3,7 @@
 </script>
 
 <script lang="ts">
+    import { mode as env } from '$app/env';
     import { assets } from '$app/paths';
     import { writable } from 'svelte/store';
     import { createEventDispatcher, onMount } from 'svelte';
@@ -39,7 +40,6 @@
     export let flipped: boolean = false;
     export let showNotation: boolean = true;
     export let showHints: boolean = true;
-    export let debug: boolean = false;
 
     export const chess = Chess();
     chess.load(fen);
@@ -48,7 +48,6 @@
     export const updatePosition = () => ($position = chess.board);
 
     const dispatch = createEventDispatcher();
-    onMount(() => (window['Chess'] = chess)); // expose chess object
 
     // ===============================================
 
@@ -147,7 +146,8 @@
         clearMembers();
     }
 
-    if (debug) {
+    if (env === 'development') {
+        onMount(() => (window['Chess'] = chess)); // expose chess object
         position.subscribe(() => {
             console.log('Position Updated');
             chess.utils.printBoard($position);

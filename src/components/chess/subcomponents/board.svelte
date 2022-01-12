@@ -33,13 +33,13 @@
 
     function handleMoveStart(e: CustomEvent) {
         dispatch('piece-move-start', {
-            square: getSquareFromXY(e.detail.mouseX, e.detail.mouseY),
+            square: getSquareFromXY(e.detail.pageX, e.detail.pageY),
         });
     }
 
     function handleMoveEnd(e: CustomEvent) {
         dispatch('piece-move-end', {
-            square: getSquareFromXY(e.detail.mouseX, e.detail.mouseY),
+            square: getSquareFromXY(e.detail.pageX, e.detail.pageY),
             accept: e.detail.accept,
             reject: e.detail.reject,
         });
