@@ -280,6 +280,11 @@ export const ALGEBRAIC = [
 ]
 
 export type ChessInstance = ReturnType<typeof Chess>;
+/**
+ * Creates a Chess Instance
+ * @param fen - FEN representation of the initial position
+ * @returns
+ */
 export default function Chess(fen?: string) {
     // Reference material: https://github.com/jhlywa/chess.js/blob/74d1e1d715ab992f0837f4ed6c1f06d2bd55531e/chess.js
 
@@ -317,6 +322,10 @@ export default function Chess(fen?: string) {
     // GENERAL METHODS
     // ==========================
 
+    /**
+     * Executes a move
+     * @param move
+     */
     function executeMove(move: Move): void {
         // DOES NOT DO VALIDITY CHECKS
         pushHistory(move);
@@ -402,6 +411,10 @@ export default function Chess(fen?: string) {
         _turnCounter++;
     }
 
+    /**
+     * Undos last move and returns it
+     * @returns Last move
+     */
     function undoMove(): Move {
         let undo = _history.pop();
         if (!undo) return null;
@@ -444,18 +457,28 @@ export default function Chess(fen?: string) {
         return move;
     }
 
-    function reset() {
+    /**
+     * Resets board to {@link STARTING_FEN}
+     */
+    function reset(): void {
         loadFen(STARTING_FEN);
     }
 
-    function clear() {
+    /**
+     * Resets board to {@link EMPTY_FEN}
+     */
+    function clear(): void {
         loadFen(EMPTY_FEN);
     }
 
+    // ==========================
     // FEN
     // ==========================
-    // ==========================
-    function loadFen(fen: string) {
+    /**
+     * Loads fen into board
+     * @param fen - FEN representation of the boarf
+     */
+    function loadFen(fen: string): void {
         const res = validateFen(fen);
         if (!res.valid) throw new Error(res.error);
 
@@ -539,8 +562,8 @@ export default function Chess(fen?: string) {
         if (String(_fullmoveNumber) !== segments[5] || _fullmoveNumber < 1)
             throw new Error('Invalid token in fullmove clock segment in fen provided');
 
-        _kings[Color.WHITE] = getKingSquare(Color.WHITE);
-        _kings[Color.BLACK] = getKingSquare(Color.BLACK);
+        _kings[Color.WHITE] = _board.findIndex((v) => v === Piece.WHITE_KING);
+        _kings[Color.BLACK] = _board.findIndex((v) => v === Piece.BLACK_KING);
         _turnCounter = 0;
     }
 
@@ -558,6 +581,15 @@ export default function Chess(fen?: string) {
     // MOVE GENERATION
     // ==========================
 
+    /**
+     * Builds move object from list of parameters
+     * @param board - Board as {@link ChessBoard120}
+     * @param from - Initial position 10x12
+     * @param to - Final position 10x12
+     * @param flags - Move flags
+     * @param promoteTo - {@link Piece} to promote to
+     * @returns Move object
+     */
     function buildMove(
         board: ChessBoard120,
         from: number,
@@ -581,8 +613,11 @@ export default function Chess(fen?: string) {
         return move;
     }
 
-    // DECORATOR THAT PREVENTS REEVALUATION
-
+    /**
+     * Generates all legal moves for a player
+     * @param color - Player to generate legal moves for
+     * @returns List of legal moves
+     */
     function genAllLegalMoves(color: Color): Moves[] {
         const moves = [];
         for (const square of MAILBOX64) {
@@ -598,6 +633,11 @@ export default function Chess(fen?: string) {
         return moves;
     }
 
+    /**
+     * Generates all pseudolegal moves for a player (does not account for check or game end situations)
+     * @param color - player to generate pseudolegal moves for
+     * @returns
+     */
     function genAllPeusdoLegalMoves(color: Color): Moves[] {
         const moves = [];
         for (const square of MAILBOX64) {
@@ -613,6 +653,11 @@ export default function Chess(fen?: string) {
         return moves;
     }
 
+    /**
+     * Given a piece, generates all legal moves for that piece
+     * @param sq - 10x12 square number of a piece
+     * @returns List of possible moves
+     */
     function genLegalMoves(sq: number): Moves {
         const legalMoves: Move[] = [];
         const { piece, square, moves, isPromotion } = genPseudoLegalMoves(sq);
@@ -631,6 +676,11 @@ export default function Chess(fen?: string) {
         };
     }
 
+    /**
+     * Given a piece, generates all pseudolegal moves for that piece (does not account for check or game end situations)
+     * @param sq - 10x12 square number of a piece
+     * @returns List of moves
+     */
     function genPseudoLegalMoves(sq: number): Moves {
         // reference material: https://github.com/thomasahle/sunfish/blob/master/sunfish.py
 
@@ -735,6 +785,11 @@ export default function Chess(fen?: string) {
         };
     }
 
+    /**
+     * Given a player, returs the castling permissions of a player
+     * @param color - color of player
+     * @returns boolean list [queen-side, king-side]
+     */
     function colorCanCastle(color: Color): boolean[] {
         const kingSquare = color === Color.WHITE ? 95 : 25;
         const enemy = swapColor(color);
@@ -760,6 +815,12 @@ export default function Chess(fen?: string) {
         ];
     }
 
+    /**
+     * Given a color, returns whether the square is attacked.
+     * @param sq - 10x12 square number of the piece
+     * @param attacker - the color of the opponent
+     * @returns boolean representing whether the square is attacked
+     */
     function squareIsAttacked(sq: number, attacker: Color): boolean {
         // requires fixing
         // Travel backwards to find enemy attacking pieces
@@ -812,14 +873,11 @@ export default function Chess(fen?: string) {
     // GAME STATE
     // ==========================
 
-    function inCheck(color: Color) {
-        return squareIsAttacked(_kings[color], swapColor(color));
-    }
-
-    function fiftyMoveRule() {
-        return _halfmoveClock >= 50;
-    }
-
+    /**
+     * If game has ended, return game end flag
+     * @param moves current possible moves
+     * @returns
+     */
     function getGameEndFlag(moves: Moves[] = genAllLegalMoves(_turn)): GameEndFlag | 0 {
         if (inCheckMate(_turn, moves)) return GameEndFlag.CHECKMATE;
         else if (inStaleMate(_turn, moves)) return GameEndFlag.STALEMATE;
@@ -829,6 +887,12 @@ export default function Chess(fen?: string) {
         else return 0;
     }
 
+    /**
+     * Get game end message
+     * @param flag {@link GameEndFlag}
+     * @param turn the current turn of the game
+     * @returns title and description of the message
+     */
     function getGameEndMessage(flag: GameEndFlag, turn: Color): { title: string; desc: string } {
         switch (flag) {
             case GameEndFlag.CHECKMATE:
@@ -864,14 +928,47 @@ export default function Chess(fen?: string) {
         }
     }
 
+    /**
+     * Given a player, returns whether the player is in check
+     * @param color color of the player
+     * @returns boolean representing whether the player is in check
+     */
+    function inCheck(color: Color): boolean {
+        return squareIsAttacked(_kings[color], swapColor(color));
+    }
+
+    /**
+     * Check whether the fifty move rule has been violated
+     * @returns boolean representing whether the half move clock exceeds 50
+     */
+    function fiftyMoveRule(): boolean {
+        return _halfmoveClock >= 50;
+    }
+
+    /**
+     * Check whether given player is in checkmate
+     * @param color color of player
+     * @param moves current possible moves for player
+     * @returns boolean representing whether the player is in checkmate
+     */
     function inCheckMate(color: Color, moves?: Moves[]) {
         return inCheck(color) && (moves ?? genAllLegalMoves(color)).length === 0;
     }
 
+    /**
+     * Check whether the situation is a stalemate
+     * @param color color of player
+     * @param moves current possible moves for player
+     * @returns boolean representing whether the situation is a stalemate
+     */
     function inStaleMate(color: Color, moves?: Moves[]) {
         return !inCheck(color) && (moves ?? genAllLegalMoves(color)).length === 0;
     }
 
+    /**
+     * Check whether current situation is insufficient material
+     * @returns boolean representing wehther the current situation is a stalemate
+     */
     function insufficientMaterial() {
         const pieces = {};
         let bishops = 0; // 1 = blacks square, 0 = white square
@@ -911,6 +1008,10 @@ export default function Chess(fen?: string) {
     // HISTORY
     // ==========================
 
+    /**
+     * Push move to history
+     * @param move move
+     */
     function pushHistory(move: Move): void {
         _history.push({
             move,
@@ -933,6 +1034,10 @@ export default function Chess(fen?: string) {
     // CHESS UTILS
     // ==========================
 
+    /**
+     * Get current state
+     * @returns state
+     */
     function getState() {
         return {
             history: _history,
@@ -947,34 +1052,56 @@ export default function Chess(fen?: string) {
         };
     }
 
+    /**
+     *
+     * @param sq 10x12 square number
+     * @returns rank of square
+     */
     function rank(sq: number) {
         return RANK_FROM_SQUARE[sq];
     }
 
+    /**
+     *
+     * @param sq 10x12 square number
+     * @returns rank of square
+     */
     function file(sq: number) {
         return FILE_FROM_SQUARE[sq];
     }
 
+    /**
+     *
+     * @param c color
+     * @returns opposite color
+     */
     function swapColor(c: Color) {
         return c === Color.WHITE ? Color.BLACK : Color.WHITE;
     }
 
-    function getKingSquare(color: Color): number {
-        return color === Color.WHITE
-            ? _board.findIndex((v) => v === Piece.WHITE_KING)
-            : _board.findIndex((v) => v === Piece.BLACK_KING);
-    }
-
+    /**
+     * check whether something is piece
+     */
     function isPiece(x: any): x is Piece {
         return x in Piece;
     }
 
+    /**
+     *
+     * @param p piece
+     * @returns the color of the piece
+     */
     function getPieceColor(p: Piece): Color | -1 {
         if (p in WhitePiece) return Color.WHITE;
         else if (p in BlackPiece) return Color.BLACK;
         else return -1;
     }
 
+    /**
+     *
+     * @param p piece
+     * @returns type of piece
+     */
     function getPieceType(p: Piece): PieceType | -1 {
         switch (p) {
             case Piece.WHITE_KING:
@@ -1004,6 +1131,11 @@ export default function Chess(fen?: string) {
         }
     }
 
+    /**
+     *
+     * @param board array representation of the board
+     * @returns unicode character representation of the board
+     */
     function boardAsUnicode(board: ChessBoard120);
     function boardAsUnicode(board: ChessBoard64) {
         if (board.length === 120) board = getMailboxAsBoard64(board);
@@ -1021,7 +1153,11 @@ export default function Chess(fen?: string) {
         output += '  a b c d e f g h';
         return output;
     }
-
+    /**
+     *
+     * @param board array representation of the board
+     * @returns ascii character representation of the board
+     */
     function boardAsAscii(board: ChessBoard120);
     function boardAsAscii(board: ChessBoard64) {
         if (board.length === 120) board = getMailboxAsBoard64(board);
@@ -1040,6 +1176,11 @@ export default function Chess(fen?: string) {
         return output;
     }
 
+    /**
+     *
+     * @param board 8x8 board
+     * @returns 10x12 board
+     */
     function getBoard64AsMailbox(board: ChessBoard64): ChessBoard120 {
         let mailbox = [];
         for (let n of MAILBOX120) {
@@ -1049,6 +1190,11 @@ export default function Chess(fen?: string) {
         return mailbox;
     }
 
+    /**
+     *
+     * @param mailbox 10x12 board
+     * @returns 10x12 board
+     */
     function getMailboxAsBoard64(mailbox: ChessBoard120): ChessBoard64 {
         return MAILBOX64.map((n) => mailbox[n]);
     }
@@ -1064,7 +1210,6 @@ export default function Chess(fen?: string) {
             printBoard: (board: ChessBoard120 | ChessBoard64) => console.log(boardAsUnicode(board)),
             rank,
             file,
-            getKingSquare,
             isPiece,
             getPieceColor,
             getPieceType,
